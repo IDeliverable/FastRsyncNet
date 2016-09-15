@@ -8,7 +8,7 @@ namespace Octodiff.Core
         void WriteChunk(ChunkSignature signature);
     }
 
-    class SignatureWriter : ISignatureWriter
+    public class SignatureWriter : ISignatureWriter
     {
         private readonly BinaryWriter signatureStream;
 

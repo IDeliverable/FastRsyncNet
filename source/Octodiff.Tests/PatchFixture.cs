@@ -37,7 +37,7 @@ namespace Octodiff.Tests
             var newName = Path.ChangeExtension(name, "2.zip");
             var copyName = Path.ChangeExtension(name, "2_out.zip");
             PackageGenerator.GeneratePackage(name, numberOfFiles);
-            PackageGenerator.ModifyPackage(name, newBasis, (int)(0.33 * numberOfFiles), (int)(0.10 * numberOfFiles));
+            PackageGenerator.ModifyPackage(name, newBasis, numberOfFiles, (int)(0.5 * numberOfFiles));
             PackageGenerator.ModifyPackage(name, newName, (int)(0.33 * numberOfFiles), (int)(0.10 * numberOfFiles));
 
             Run("signature " + name + " " + name + ".sig");

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Octodiff.Lib.Core;
 
 namespace Octodiff.Core
 {
@@ -11,17 +12,25 @@ namespace Octodiff.Core
                 return new HashAlgorithmWrapper("SHA1", SHA1.Create());
             }
 
+            public static IHashAlgorithm XxHash()
+            {
+                return new XxHashAlgorithm();
+            }
+
             public static IHashAlgorithm Default()
             {
-                return Sha1();
+                return XxHash();
             }
 
             public static IHashAlgorithm Create(string algorithm)
             {
+                if (algorithm == "XXH64")
+                    return XxHash();
+
                 if (algorithm == "SHA1")
                     return Sha1();
 
-                throw new CompatibilityException(string.Format("The hash algorithm '{0}' is not supported in this version of Octodiff", algorithm));
+                throw new CompatibilityException($"The hash algorithm '{algorithm}' is not supported in this version of Octodiff");
             }
         }
 

@@ -4,10 +4,7 @@ namespace Octodiff.Core
 {
     public class Adler32RollingChecksum : IRollingChecksum
     {
-        private ushort a = 1;
-        private ushort b;
-
-        public string Name { get { return "Adler32"; } }
+        public string Name => "Adler32";
 
         public UInt32 Calculate(byte[] block, int offset, int count)
         {
