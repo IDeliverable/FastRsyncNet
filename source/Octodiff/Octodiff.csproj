@@ -60,9 +60,9 @@
     <Compile Include="CommandLine\Support\NDesk.Options.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Octodiff.Lib\Octodiff.Lib.csproj">
+    <ProjectReference Include="..\FastRsync\FastRsync.csproj">
       <Project>{7b6474f5-8ee1-4d09-a48a-5a295e2df8e2}</Project>
-      <Name>Octodiff.Lib</Name>
+      <Name>FastRsync</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

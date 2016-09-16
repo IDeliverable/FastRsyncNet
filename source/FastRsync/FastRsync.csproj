@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7B6474F5-8EE1-4D09-A48A-5A295E2DF8E2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FastRsync</RootNamespace>
+    <AssemblyName>FastRsync</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.HashFunction.Core, Version=1.8.2.2, Culture=neutral, PublicKeyToken=80c9288e394c1322, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.HashFunction.Core.1.8.2.2\lib\net45\System.Data.HashFunction.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.HashFunction.Interfaces, Version=1.0.0.2, Culture=neutral, PublicKeyToken=80c9288e394c1322, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.HashFunction.Interfaces.1.0.0.2\lib\net45\System.Data.HashFunction.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.HashFunction.xxHash, Version=1.8.2.2, Culture=neutral, PublicKeyToken=80c9288e394c1322, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.HashFunction.xxHash.1.8.2.2\lib\net45\System.Data.HashFunction.xxHash.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Hash\Adler32RollingChecksum.cs" />
+    <Compile Include="Core\AggregateCopyOperationsDecorator.cs" />
+    <Compile Include="Delta\BinaryDeltaReader.cs" />
+    <Compile Include="Delta\BinaryDeltaWriter.cs" />
+    <Compile Include="Core\BinaryFormat.cs" />
+    <Compile Include="Core\ChunkSignature.cs" />
+    <Compile Include="Core\ChunkSignatureChecksumComparer.cs" />
+    <Compile Include="Exceptions\CompatibilityException.cs" />
+    <Compile Include="Exceptions\CorruptFileFormatException.cs" />
+    <Compile Include="Delta\DataRange.cs" />
+    <Compile Include="Delta\DeltaApplier.cs" />
+    <Compile Include="Delta\DeltaBuilder.cs" />
+    <Compile Include="Delta\DeltaStatistics.cs" />
+    <Compile Include="Hash\HashAlgorithmWrapper.cs" />
+    <Compile Include="Delta\IDeltaReader.cs" />
+    <Compile Include="Delta\IDeltaWriter.cs" />
+    <Compile Include="Hash\IHashAlgorithm.cs" />
+    <Compile Include="Hash\IRollingChecksum.cs" />
+    <Compile Include="Signature\ISignatureReader.cs" />
+    <Compile Include="Signature\ISignatureWriter.cs" />
+    <Compile Include="Signature\Signature.cs" />
+    <Compile Include="Signature\SignatureBuilder.cs" />
+    <Compile Include="Signature\SignatureReader.cs" />
+    <Compile Include="Core\SupportedAlgorithms.cs" />
+    <Compile Include="Exceptions\UsageException.cs" />
+    <Compile Include="Hash\XxHashAlgorithm.cs" />
+    <Compile Include="Diagnostics\ConsoleProgressReporter.cs" />
+    <Compile Include="Diagnostics\IProgressReporter.cs" />
+    <Compile Include="Diagnostics\NullProgressReporter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

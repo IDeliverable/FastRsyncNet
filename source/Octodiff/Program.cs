@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FastRsync.Core;
+using FastRsync.Exceptions;
 using Octodiff.CommandLine;
 using Octodiff.CommandLine.Support;
-using Octodiff.Core;
 
 namespace Octodiff
 {

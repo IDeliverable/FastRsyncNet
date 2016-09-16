@@ -1,9 +1,10 @@
 using System;
 using System.IO;
 using System.Linq;
+using FastRsync.Core;
+using FastRsync.Delta;
+using FastRsync.Diagnostics;
 using Octodiff.CommandLine.Support;
-using Octodiff.Core;
-using Octodiff.Diagnostics;
 
 namespace Octodiff.CommandLine
 {

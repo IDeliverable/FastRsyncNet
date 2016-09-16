@@ -1,7 +1,8 @@
 ﻿using System.IO;
+using FastRsync.Core;
+using FastRsync.Delta;
+using FastRsync.Diagnostics;
 using Octodiff.CommandLine.Support;
-using Octodiff.Core;
-using Octodiff.Diagnostics;
 
 namespace Octodiff.CommandLine
 {

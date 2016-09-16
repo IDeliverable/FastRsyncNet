@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text;
-using Octodiff.Core;
 using Octopus.Platform.Util;
 
 namespace Octodiff.Tests.Util
