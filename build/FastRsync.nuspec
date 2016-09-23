@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>FastRsyncNet</id>
+        <version>1.0.0.0</version>
+        <authors>Grzegorz Blok</authors>
+        <owners>Grzegorz Blok</owners>
+        <licenseUrl>https://github.com/GrzegorzBlok/FastRsyncNet/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/GrzegorzBlok/FastRsyncNet</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <tags>sync rsync synchronization</tags>
+        <description>.NET library for file synchronization based on Rsync algorithm. Optimized for speed and data size to achieve best network performance.</description>
+        <dependencies>
+            <dependency id="System.Data.HashFunction.xxHash" version="1.8.2.2" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\source\FastRsync\bin\Release\FastRsync.dll" target="lib\net45\FastRsync.dll" />
+    </files>
+</package>
