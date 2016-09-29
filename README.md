@@ -2,8 +2,8 @@
 
 The Fast Rsync .NET library is Rsync implementation derived from [Octodiff](https://github.com/OctopusDeploy/Octodiff) tool.
 
-Unlike the Octodiff which is based on SHA1 algorithms, the FastRsyncNet uses xxHash64 as a default algorithms.
-Usage of xxHash64 allows significant faster calculations and signature sizes.
+Unlike the Octodiff which is based on SHA1 algorithm, the FastRsyncNet uses xxHash64 as a default algorithm.
+Usage of xxHash64 allows for significant faster calculations and smaller signature size.
 
 The SHA1 is also supported so FastRsyncNet is 100% compatible with Octodiff.
 
