@@ -7,7 +7,7 @@ Usage of xxHash64 allows significant faster calculations and signature sizes.
 
 The SHA1 is also supported so FastRsyncNet is 100% compatible with Octodiff.
 
-## Install
+## Install [![NuGet](https://img.shields.io/nuget/v/FastRsyncNet.svg?style=flat)](https://www.nuget.org/packages/FastRsyncNet/)
 Add To project via NuGet:  
 1. Right click on a project and click 'Manage NuGet Packages'.  
 2. Search for 'FastRsyncNet' and click 'Install'.  
