@@ -31,7 +31,7 @@ namespace FastRsync.Core
                 if (algorithm == "SHA1")
                     return Sha1();
 
-                throw new CompatibilityException($"The hash algorithm '{algorithm}' is not supported in this version of Octodiff");
+                throw new CompatibilityException($"The hash algorithm '{algorithm}' is not supported");
             }
         }
 
@@ -48,7 +48,8 @@ namespace FastRsync.Core
             {
                 if (algorithm == "Adler32")
                     return Adler32Rolling();
-                throw new CompatibilityException(string.Format("The rolling checksum algorithm '{0}' is not supported in this version of Octodiff", algorithm));
+                throw new CompatibilityException(
+                    $"The rolling checksum algorithm '{algorithm}' is not supported");
             }
         }
     }
