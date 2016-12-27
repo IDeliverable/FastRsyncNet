@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
@@ -8,12 +9,12 @@ namespace FastRsync.Signature
 {
     public class SignatureReader : ISignatureReader
     {
-        private readonly IProgressReporter reporter;
+        private readonly IProgress<ProgressReport> report;
         private readonly BinaryReader reader;
 
-        public SignatureReader(Stream stream, IProgressReporter reporter)
+        public SignatureReader(Stream stream, IProgress<ProgressReport> progressHandler)
         {
-            this.reporter = reporter;
+            this.report = progressHandler;
             this.reader = new BinaryReader(stream);
         }
 
@@ -73,9 +74,14 @@ namespace FastRsync.Signature
             return signature;
         }
 
-        void Progress()
+        private void Progress()
         {
-            reporter.ReportProgress("Reading signature", reader.BaseStream.Position, reader.BaseStream.Length);
+            report.Report(new ProgressReport
+            {
+                Operation = "Reading signature",
+                CurrentPosition = reader.BaseStream.Position,
+                Total = reader.BaseStream.Length
+            });
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using FastRsync.Core;
@@ -13,10 +14,10 @@ namespace FastRsync.Delta
 
         public DeltaBuilder()
         {
-            ProgressReporter = new NullProgressReporter();
+            ProgressReport = new NullProgressReporter();
         }
 
-        public IProgressReporter ProgressReporter { get; set; }
+        public IProgress<ProgressReport> ProgressReport { get; set; }
 
         public void BuildDelta(Stream newFileStream, ISignatureReader signatureReader, IDeltaWriter deltaWriter)
         {
@@ -38,7 +39,12 @@ namespace FastRsync.Delta
             long lastMatchPosition = 0;
 
             var fileSize = newFileStream.Length;
-            ProgressReporter.ReportProgress("Building delta", 0, fileSize);
+            ProgressReport.Report(new ProgressReport
+            {
+                Operation = "Building delta",
+                CurrentPosition = 0,
+                Total = fileSize
+            });
 
             while (true)
             {
@@ -73,7 +79,12 @@ namespace FastRsync.Delta
                         checksum = checksumAlgorithm.Rotate(checksum, remove, add, remainingPossibleChunkSize);
                     }
 
-                    ProgressReporter.ReportProgress("Building delta", readSoFar, fileSize);
+                    ProgressReport.Report(new ProgressReport
+                    {
+                        Operation = "Building delta",
+                        CurrentPosition = readSoFar,
+                        Total = fileSize
+                    });
 
                     if (readSoFar - (lastMatchPosition - remainingPossibleChunkSize) < remainingPossibleChunkSize)
                         continue;
@@ -130,7 +141,13 @@ namespace FastRsync.Delta
 
         private Dictionary<uint, int> CreateChunkMap(IList<ChunkSignature> chunks, out int maxChunkSize, out int minChunkSize)
         {
-            ProgressReporter.ReportProgress("Creating chunk map", 0, chunks.Count);
+            ProgressReport.Report(new ProgressReport
+            {
+                Operation = "Creating chunk map",
+                CurrentPosition = 0,
+                Total = chunks.Count
+            });
+
             maxChunkSize = 0;
             minChunkSize = int.MaxValue;
 
@@ -146,7 +163,12 @@ namespace FastRsync.Delta
                     chunkMap[chunk.RollingChecksum] = i;
                 }
 
-                ProgressReporter.ReportProgress("Creating chunk map", i, chunks.Count);
+                ProgressReport.Report(new ProgressReport
+                {
+                    Operation = "Creating chunk map",
+                    CurrentPosition = i,
+                    Total = chunks.Count
+                });
             }
             return chunkMap;
         }

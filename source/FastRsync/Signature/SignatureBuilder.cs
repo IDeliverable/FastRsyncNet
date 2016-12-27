@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
@@ -8,9 +9,9 @@ namespace FastRsync.Signature
 {
     public class SignatureBuilder
     {
-        public static readonly short MinimumChunkSize = 128;
-        public static readonly short DefaultChunkSize = 2048;
-        public static readonly short MaximumChunkSize = 31 * 1024;
+        public const short MinimumChunkSize = 128;
+        public const short DefaultChunkSize = 2048;
+        public const short MaximumChunkSize = 31 * 1024;
 
         private short chunkSize;
 
@@ -19,10 +20,10 @@ namespace FastRsync.Signature
             ChunkSize = DefaultChunkSize;
             HashAlgorithm = SupportedAlgorithms.Hashing.Default();
             RollingChecksumAlgorithm = SupportedAlgorithms.Checksum.Default();
-            ProgressReporter = new NullProgressReporter();
+            ProgressReport = new NullProgressReporter();
         }
 
-        public IProgressReporter ProgressReporter { get; set; }
+        public IProgress<ProgressReport> ProgressReport { get; set; }
 
         public IHashAlgorithm HashAlgorithm { get; set; }
 
@@ -34,9 +35,9 @@ namespace FastRsync.Signature
             set
             {
                 if (value < MinimumChunkSize)
-                    throw new UsageException(string.Format("Chunk size cannot be less than {0}", MinimumChunkSize));
+                    throw new UsageException($"Chunk size cannot be less than {MinimumChunkSize}");
                 if (value > MaximumChunkSize)
-                    throw new UsageException(string.Format("Chunk size cannot be exceed {0}", MaximumChunkSize));
+                    throw new UsageException($"Chunk size cannot be exceed {MaximumChunkSize}");
                 chunkSize = value;
             }
         }
@@ -47,24 +48,40 @@ namespace FastRsync.Signature
             WriteChunkSignatures(stream, signatureWriter);
         }
 
-        void WriteMetadata(Stream stream, ISignatureWriter signatureWriter)
+        private void WriteMetadata(Stream stream, ISignatureWriter signatureWriter)
         {
-            ProgressReporter.ReportProgress("Hashing file", 0, stream.Length);
+            ProgressReport.Report(new ProgressReport
+            {
+                Operation = "Hashing file",
+                CurrentPosition = 0,
+                Total = stream.Length
+            });
+
             stream.Seek(0, SeekOrigin.Begin);
 
             var hash = HashAlgorithm.ComputeHash(stream);
 
             signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm, hash);
 
-            ProgressReporter.ReportProgress("Hashing file", stream.Length, stream.Length);
+            ProgressReport.Report(new ProgressReport
+            {
+                Operation = "Hashing file",
+                CurrentPosition = stream.Length,
+                Total = stream.Length
+            });
         }
 
-        void WriteChunkSignatures(Stream stream, ISignatureWriter signatureWriter)
+        private void WriteChunkSignatures(Stream stream, ISignatureWriter signatureWriter)
         {
             var checksumAlgorithm = RollingChecksumAlgorithm;
             var hashAlgorithm = HashAlgorithm;
 
-            ProgressReporter.ReportProgress("Building signatures", 0, stream.Length);
+            ProgressReport.Report(new ProgressReport
+            {
+                Operation = "Building signatures",
+                CurrentPosition = 0,
+                Total = stream.Length
+            });
             stream.Seek(0, SeekOrigin.Begin);
 
             long start = 0;
@@ -81,7 +98,12 @@ namespace FastRsync.Signature
                 });
 
                 start += read;
-                ProgressReporter.ReportProgress("Building signatures", start, stream.Length);
+                ProgressReport.Report(new ProgressReport
+                {
+                    Operation = "Building signatures",
+                    CurrentPosition = start,
+                    Total = stream.Length
+                });
             }
         }
     }

@@ -24,7 +24,7 @@ namespace Octodiff.CommandLine
             options.Positional("signature-file", "The file containing the signature from the basis file.", v => signatureFilePath = v);
             options.Positional("new-file", "The file to create the delta from.", v => newFilePath = v);
             options.Positional("delta-file", "The file to write the delta to.", v => deltaFilePath = v);
-            options.Add("progress", "Whether progress should be written to stdout", v => configuration.Add(builder => builder.ProgressReporter = new ConsoleProgressReporter()));
+            options.Add("progress", "Whether progress should be written to stdout", v => configuration.Add(builder => builder.ProgressReport = new ConsoleProgressReporter()));
         }
 
         public void GetHelp(TextWriter writer)
@@ -75,7 +75,7 @@ namespace Octodiff.CommandLine
             using (var signatureStream = new FileStream(signatureFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var deltaStream = new FileStream(deltaFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
-                delta.BuildDelta(newFileStream, new SignatureReader(signatureStream, delta.ProgressReporter), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
+                delta.BuildDelta(newFileStream, new SignatureReader(signatureStream, delta.ProgressReport), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
             }
 
             return 0;

@@ -22,7 +22,7 @@ namespace Octodiff.CommandLine
             options.Positional("basis-file", "The file to read and create a signature from.", v => basisFilePath = v);
             options.Positional("signature-file", "The file to write the signature to.", v => signatureFilePath = v);
             options.Add("chunk-size=", string.Format("Maximum bytes per chunk. Defaults to {0}. Min of {1}, max of {2}.", SignatureBuilder.DefaultChunkSize, SignatureBuilder.MinimumChunkSize, SignatureBuilder.MaximumChunkSize), v => configuration.Add(builder => builder.ChunkSize = short.Parse(v)));
-            options.Add("progress", "Whether progress should be written to stdout", v => configuration.Add(builder => builder.ProgressReporter = new ConsoleProgressReporter()));
+            options.Add("progress", "Whether progress should be written to stdout", v => configuration.Add(builder => builder.ProgressReport = new ConsoleProgressReporter()));
         }
 
         public void GetHelp(TextWriter writer)

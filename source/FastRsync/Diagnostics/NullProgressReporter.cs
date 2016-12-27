@@ -1,8 +1,10 @@
-﻿namespace FastRsync.Diagnostics
+﻿using System;
+
+namespace FastRsync.Diagnostics
 {
-    public class NullProgressReporter : IProgressReporter
+    public class NullProgressReporter : IProgress<ProgressReport>
     {
-        public void ReportProgress(string operation, long currentPosition, long total)
+        public void Report(ProgressReport value)
         {
         }
     }

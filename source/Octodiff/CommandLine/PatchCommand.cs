@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using FastRsync.Core;
 using FastRsync.Delta;
 using FastRsync.Diagnostics;
@@ -10,7 +11,7 @@ namespace Octodiff.CommandLine
     class PatchCommand : ICommand
     {
         private readonly OptionSet options;
-        private IProgressReporter progressReporter;
+        private IProgress<ProgressReport> progressReport;
         private string basisFilePath;
         private string deltaFilePath;
         private string newFilePath;
@@ -22,7 +23,7 @@ namespace Octodiff.CommandLine
             options.Positional("basis-file", "The file that the delta was created for.", v => basisFilePath = v);
             options.Positional("delta-file", "The delta to apply to the basis file", v => deltaFilePath = v);
             options.Positional("new-file", "The file to write the result to.", v => newFilePath = v);
-            options.Add("progress", "Whether progress should be written to stdout", v => progressReporter = new ConsoleProgressReporter());
+            options.Add("progress", "Whether progress should be written to stdout", v => progressReport = new ConsoleProgressReporter());
             options.Add("skip-verification", "Skip checking whether the basis file is the same as the file used to produce the signature that created the delta.", v => skipHashCheck = true);
         }
 
@@ -64,7 +65,7 @@ namespace Octodiff.CommandLine
             using (var deltaStream = new FileStream(deltaFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var newFileStream = new FileStream(newFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
             {
-                delta.Apply(basisStream, new BinaryDeltaReader(deltaStream, progressReporter), newFileStream);
+                delta.Apply(basisStream, new BinaryDeltaReader(deltaStream, progressReport), newFileStream);
             }
 
             return 0;
