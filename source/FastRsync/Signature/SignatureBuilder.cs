@@ -20,7 +20,7 @@ namespace FastRsync.Signature
             ChunkSize = DefaultChunkSize;
             HashAlgorithm = SupportedAlgorithms.Hashing.Default();
             RollingChecksumAlgorithm = SupportedAlgorithms.Checksum.Default();
-            ProgressReport = new NullProgressReporter();
+            ProgressReport = null;
         }
 
         public IProgress<ProgressReport> ProgressReport { get; set; }
@@ -50,9 +50,9 @@ namespace FastRsync.Signature
 
         private void WriteMetadata(Stream stream, ISignatureWriter signatureWriter)
         {
-            ProgressReport.Report(new ProgressReport
+            ProgressReport?.Report(new ProgressReport
             {
-                Operation = "Hashing file",
+                Operation = ProgressOperationType.HashingFile,
                 CurrentPosition = 0,
                 Total = stream.Length
             });
@@ -63,9 +63,9 @@ namespace FastRsync.Signature
 
             signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm, hash);
 
-            ProgressReport.Report(new ProgressReport
+            ProgressReport?.Report(new ProgressReport
             {
-                Operation = "Hashing file",
+                Operation = ProgressOperationType.HashingFile,
                 CurrentPosition = stream.Length,
                 Total = stream.Length
             });
@@ -76,9 +76,9 @@ namespace FastRsync.Signature
             var checksumAlgorithm = RollingChecksumAlgorithm;
             var hashAlgorithm = HashAlgorithm;
 
-            ProgressReport.Report(new ProgressReport
+            ProgressReport?.Report(new ProgressReport
             {
-                Operation = "Building signatures",
+                Operation = ProgressOperationType.BuildingSignatures,
                 CurrentPosition = 0,
                 Total = stream.Length
             });
@@ -98,9 +98,9 @@ namespace FastRsync.Signature
                 });
 
                 start += read;
-                ProgressReport.Report(new ProgressReport
+                ProgressReport?.Report(new ProgressReport
                 {
-                    Operation = "Building signatures",
+                    Operation = ProgressOperationType.BuildingSignatures,
                     CurrentPosition = start,
                     Total = stream.Length
                 });

@@ -19,7 +19,7 @@ namespace FastRsync.Delta
         public BinaryDeltaReader(Stream stream, IProgress<ProgressReport> progressHandler)
         {
             this.reader = new BinaryReader(stream);
-            this.progressReport = progressHandler ?? new NullProgressReporter();
+            this.progressReport = progressHandler;
         }
 
         public byte[] ExpectedHash
@@ -40,7 +40,7 @@ namespace FastRsync.Delta
             }
         }
 
-        void EnsureMetadata()
+        private void EnsureMetadata()
         {
             if (hasReadMetadata)
                 return;
@@ -79,13 +79,13 @@ namespace FastRsync.Delta
             {
                 var b = reader.ReadByte();
 
-                progressReport.Report(new ProgressReport
+                progressReport?.Report(new ProgressReport
                 {
-                    Operation = "Applying delta",
+                    Operation = ProgressOperationType.ApplyingDelta,
                     CurrentPosition = reader.BaseStream.Position,
                     Total = fileLength
                 });
-                
+
                 if (b == BinaryFormat.CopyCommand)
                 {
                     var start = reader.ReadInt64();

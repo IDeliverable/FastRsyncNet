@@ -81,7 +81,6 @@
     <Compile Include="Hash\XxHashAlgorithm.cs" />
     <Compile Include="Diagnostics\ConsoleProgressReporter.cs" />
     <Compile Include="Diagnostics\ProgressReport.cs" />
-    <Compile Include="Diagnostics\NullProgressReporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

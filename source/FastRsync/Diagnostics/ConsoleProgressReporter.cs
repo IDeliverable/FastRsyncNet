@@ -4,7 +4,7 @@ namespace FastRsync.Diagnostics
 {
     public class ConsoleProgressReporter : IProgress<ProgressReport>
     {
-        private string currentOperation;
+        private ProgressOperationType currentOperation;
         private int progressPercentage;
 
         public void Report(ProgressReport progress)

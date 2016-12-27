@@ -76,9 +76,9 @@ namespace FastRsync.Signature
 
         private void Progress()
         {
-            report.Report(new ProgressReport
+            report?.Report(new ProgressReport
             {
-                Operation = "Reading signature",
+                Operation = ProgressOperationType.ReadingSignature,
                 CurrentPosition = reader.BaseStream.Position,
                 Total = reader.BaseStream.Length
             });

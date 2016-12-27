@@ -41,7 +41,7 @@ namespace Octodiff.CommandLine
 
             using (var deltaStream = new FileStream(deltaFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                var reader = new BinaryDeltaReader(deltaStream, new NullProgressReporter());
+                var reader = new BinaryDeltaReader(deltaStream, null);
 
                 reader.Apply(data =>
                 {

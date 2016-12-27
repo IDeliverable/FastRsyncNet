@@ -14,7 +14,7 @@ namespace FastRsync.Delta
 
         public DeltaBuilder()
         {
-            ProgressReport = new NullProgressReporter();
+            ProgressReport = null;
         }
 
         public IProgress<ProgressReport> ProgressReport { get; set; }
@@ -39,9 +39,9 @@ namespace FastRsync.Delta
             long lastMatchPosition = 0;
 
             var fileSize = newFileStream.Length;
-            ProgressReport.Report(new ProgressReport
+            ProgressReport?.Report(new ProgressReport
             {
-                Operation = "Building delta",
+                Operation = ProgressOperationType.BuildingDelta,
                 CurrentPosition = 0,
                 Total = fileSize
             });
@@ -79,9 +79,9 @@ namespace FastRsync.Delta
                         checksum = checksumAlgorithm.Rotate(checksum, remove, add, remainingPossibleChunkSize);
                     }
 
-                    ProgressReport.Report(new ProgressReport
+                    ProgressReport?.Report(new ProgressReport
                     {
-                        Operation = "Building delta",
+                        Operation = ProgressOperationType.BuildingDelta,
                         CurrentPosition = readSoFar,
                         Total = fileSize
                     });
@@ -141,9 +141,9 @@ namespace FastRsync.Delta
 
         private Dictionary<uint, int> CreateChunkMap(IList<ChunkSignature> chunks, out int maxChunkSize, out int minChunkSize)
         {
-            ProgressReport.Report(new ProgressReport
+            ProgressReport?.Report(new ProgressReport
             {
-                Operation = "Creating chunk map",
+                Operation = ProgressOperationType.CreatingChunkMap,
                 CurrentPosition = 0,
                 Total = chunks.Count
             });
@@ -163,9 +163,9 @@ namespace FastRsync.Delta
                     chunkMap[chunk.RollingChecksum] = i;
                 }
 
-                ProgressReport.Report(new ProgressReport
+                ProgressReport?.Report(new ProgressReport
                 {
-                    Operation = "Creating chunk map",
+                    Operation = ProgressOperationType.CreatingChunkMap,
                     CurrentPosition = i,
                     Total = chunks.Count
                 });
