@@ -30,13 +30,14 @@ using (var signatureStream = new FileStream(signatureFilePath, FileMode.Create, 
 ```
 
 ### Calculating delta
+
 ```csharp
 using FastRsync.Delta;
 
 ...
 
 var delta = new DeltaBuilder();
-builder.ProgressReporter = new ConsoleProgressReporter();
+builder.ProgressReport = new ConsoleProgressReporter();
 using (var newFileStream = new FileStream(newFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
 using (var signatureStream = new FileStream(signatureFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
 using (var deltaStream = new FileStream(deltaFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
@@ -61,5 +62,26 @@ using (var deltaStream = new FileStream(deltaFilePath, FileMode.Open, FileAccess
 using (var newFileStream = new FileStream(newFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
 {
     delta.Apply(basisStream, new BinaryDeltaReader(deltaStream, progressReporter), newFileStream);
+}
+```
+### Calculating signature on Azure blobs
+
+```csharp
+using FastRsync.Signature;
+
+...
+
+var storageAccount = CloudStorageAccount.Parse("UseDevelopmentStorage=true;");
+var blobClient = storageAccount.CreateCloudBlobClient();
+var blobsContainer = blobClient.GetContainerReference("containerName");
+var basisBlob = blobsContainer.GetBlockBlobReference("blobName");
+
+var signatureBlob = container.GetBlockBlobReference("blob_signature");
+
+var signatureBuilder = new SignatureBuilder();
+using (var signatureStream = await signatureBlob.OpenWriteAsync())
+using (var basisStream = await basisBlob.OpenReadAsync())
+{
+    signatureBuilder.Build(basisStream, new SignatureWriter(signatureStream));
 }
 ```
