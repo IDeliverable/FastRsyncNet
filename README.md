@@ -66,12 +66,14 @@ using (var newFileStream = new FileStream(newFilePath, FileMode.Create, FileAcce
 ```
 ### Calculating signature on Azure blobs
 
+FastRsyncNet might not work on Azure Storage emulator due to issues with stream seeking.
+
 ```csharp
 using FastRsync.Signature;
 
 ...
 
-var storageAccount = CloudStorageAccount.Parse("UseDevelopmentStorage=true;");
+var storageAccount = CloudStorageAccount.Parse("azure storage connectionstring");
 var blobClient = storageAccount.CreateCloudBlobClient();
 var blobsContainer = blobClient.GetContainerReference("containerName");
 var basisBlob = blobsContainer.GetBlockBlobReference("blobName");
