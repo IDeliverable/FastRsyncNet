@@ -65,7 +65,6 @@
     <Compile Include="Delta\DataRange.cs" />
     <Compile Include="Delta\DeltaApplier.cs" />
     <Compile Include="Delta\DeltaBuilder.cs" />
-    <Compile Include="Delta\DeltaStatistics.cs" />
     <Compile Include="Hash\HashAlgorithmWrapper.cs" />
     <Compile Include="Delta\IDeltaReader.cs" />
     <Compile Include="Delta\IDeltaWriter.cs" />

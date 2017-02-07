@@ -59,9 +59,7 @@ namespace FastRsync.Signature
 
             stream.Seek(0, SeekOrigin.Begin);
 
-            var hash = HashAlgorithm.ComputeHash(stream);
-
-            signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm, hash);
+            signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm);
 
             ProgressReport?.Report(new ProgressReport
             {

@@ -6,7 +6,7 @@ namespace FastRsync.Signature
 {
     public interface ISignatureWriter
     {
-        void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm, byte[] hash);
+        void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm);
         void WriteChunk(ChunkSignature signature);
     }
 
@@ -19,7 +19,7 @@ namespace FastRsync.Signature
             this.signatureStream = new BinaryWriter(signatureStream);
         }
 
-        public void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm, byte[] hash)
+        public void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm)
         {
             signatureStream.Write(BinaryFormat.SignatureHeader);
             signatureStream.Write(BinaryFormat.Version);
