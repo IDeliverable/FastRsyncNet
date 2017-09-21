@@ -16,13 +16,14 @@ namespace FastRsync.Delta
 
         public void Apply(Stream basisFileStream, IDeltaReader delta, Stream outputStream)
         {
+            var buffer = new byte[4 * 1024 * 1024];
+
             delta.Apply(
                 writeData: (data) => outputStream.Write(data, 0, data.Length),
                 copy: (startPosition, length) =>
                 {
                     basisFileStream.Seek(startPosition, SeekOrigin.Begin);
 
-                    var buffer = new byte[4*1024*1024];
                     int read;
                     long soFar = 0;
                     while ((read = basisFileStream.Read(buffer, 0, (int)Math.Min(length - soFar, buffer.Length))) > 0)

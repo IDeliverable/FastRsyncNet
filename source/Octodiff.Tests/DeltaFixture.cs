@@ -50,9 +50,9 @@ namespace Octodiff.Tests
             Assert.That(Regex.IsMatch(Output, "Copy: ([0-9A-F]+) to ([0-9A-F]+)\r\n"));
             Assert.That(Regex.IsMatch(Output, "Data: \\(([0-9]+) bytes\\)"));
 
-            var originalSize = new FileInfo(name).Length;
-            var newSize = new FileInfo(newName).Length;
-            var deltaSize = new FileInfo(name + ".delta").Length;
+            var originalSize = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, name)).Length;
+            var newSize = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, newName)).Length;
+            var deltaSize = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, name + ".delta")).Length;
             var actualDifference = Math.Abs(newSize - originalSize);
             var deltaToActualRatio = (double) deltaSize/actualDifference;
             Trace.WriteLine(string.Format("Delta ratio: {0:n3}", deltaToActualRatio));

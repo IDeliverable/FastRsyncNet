@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text;
+using NUnit.Framework;
 using Octopus.Platform.Util;
 
 namespace Octodiff.Tests.Util
@@ -21,7 +22,7 @@ namespace Octodiff.Tests.Util
 
             var exit = SilentProcessRunner.ExecuteCommand(path,
                 args,
-                Environment.CurrentDirectory,
+                TestContext.CurrentContext.TestDirectory,
                 output =>
                 {
                     stdOutBuilder.AppendLine(output);

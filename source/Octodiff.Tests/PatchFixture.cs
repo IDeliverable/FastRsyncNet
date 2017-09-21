@@ -15,8 +15,8 @@ namespace Octodiff.Tests
         [TestCase("SmallPackage100mb.zip", 1000)]
         public void PatchingShouldResultInPerfectCopy(string name, int numberOfFiles)
         {
-            var newName = Path.ChangeExtension(name, "2.zip");
-            var copyName = Path.ChangeExtension(name, "2_out.zip");
+            var newName = Path.ChangeExtension(Path.Combine(TestContext.CurrentContext.TestDirectory, name), "2.zip");
+            var copyName = Path.ChangeExtension(Path.Combine(TestContext.CurrentContext.TestDirectory, name), "2_out.zip");
             PackageGenerator.GeneratePackage(name, numberOfFiles);
             PackageGenerator.ModifyPackage(name, newName, (int)(0.33 * numberOfFiles), (int)(0.10 * numberOfFiles));
 
@@ -33,9 +33,9 @@ namespace Octodiff.Tests
         [TestCase("SmallPackage10mb.zip", 100)]
         public void PatchVerificationShouldFailWhenFilesModified(string name, int numberOfFiles)
         {
-            var newBasis = Path.ChangeExtension(name, "1.zip");
-            var newName = Path.ChangeExtension(name, "2.zip");
-            var copyName = Path.ChangeExtension(name, "2_out.zip");
+            var newBasis = Path.ChangeExtension(Path.Combine(TestContext.CurrentContext.TestDirectory, name), "1.zip");
+            var newName = Path.ChangeExtension(Path.Combine(TestContext.CurrentContext.TestDirectory, name), "2.zip");
+            var copyName = Path.ChangeExtension(Path.Combine(TestContext.CurrentContext.TestDirectory, name), "2_out.zip");
             PackageGenerator.GeneratePackage(name, numberOfFiles);
             PackageGenerator.ModifyPackage(name, newBasis, numberOfFiles, (int)(0.5 * numberOfFiles));
             PackageGenerator.ModifyPackage(name, newName, (int)(0.33 * numberOfFiles), (int)(0.10 * numberOfFiles));
@@ -44,16 +44,16 @@ namespace Octodiff.Tests
             Run("delta " + name + ".sig " + newName + " " + name + ".delta");
             Run("patch " + newBasis + " " + name + ".delta" + " " + copyName);
             Assert.That(ExitCode, Is.EqualTo(4));
-            Assert.That(Output, Is.StringContaining("Error: Verification of the patched file failed"));
+            Assert.That(Output, Does.Contain("Error: Verification of the patched file failed"));
         }
 
         [Test]
         [TestCase("SmallPackage10mb.zip", 100)]
         public void PatchVerificationCanBeSkipped(string name, int numberOfFiles)
         {
-            var newBasis = Path.ChangeExtension(name, "1.zip");
-            var newName = Path.ChangeExtension(name, "2.zip");
-            var copyName = Path.ChangeExtension(name, "2_out.zip");
+            var newBasis = Path.ChangeExtension(Path.Combine(TestContext.CurrentContext.TestDirectory, name), "1.zip");
+            var newName = Path.ChangeExtension(Path.Combine(TestContext.CurrentContext.TestDirectory, name), "2.zip");
+            var copyName = Path.ChangeExtension(Path.Combine(TestContext.CurrentContext.TestDirectory, name), "2_out.zip");
             PackageGenerator.GeneratePackage(name, numberOfFiles);
             PackageGenerator.ModifyPackage(name, newBasis, (int)(0.33 * numberOfFiles), (int)(0.10 * numberOfFiles));
             PackageGenerator.ModifyPackage(name, newName, (int)(0.33 * numberOfFiles), (int)(0.10 * numberOfFiles));

@@ -21,8 +21,8 @@ namespace Octodiff.Tests
             Run("signature " + name + " " + name + ".sig");
             Assert.That(ExitCode, Is.EqualTo(0));
 
-            var basisSize = new FileInfo(name).Length;
-            var signatureSize = new FileInfo(name + ".sig").Length;
+            var basisSize = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, name)).Length;
+            var signatureSize = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig").Length;
             var signatureSizePercentageOfBasis = signatureSize/(double) basisSize;
 
             Trace.WriteLine(string.Format("Basis size: {0:n0}", basisSize));
@@ -44,10 +44,14 @@ namespace Octodiff.Tests
             Run("signature " + name + " " + name + ".sig.4 --chunk-size=2048");
             Run("signature " + name + " " + name + ".sig.5 --chunk-size=31744");
 
-            Assert.That(Length(name + ".sig.1") > Length(name + ".sig.2"));
-            Assert.That(Length(name + ".sig.2") > Length(name + ".sig.3"));
-            Assert.That(Length(name + ".sig.3") > Length(name + ".sig.4"));
-            Assert.That(Length(name + ".sig.4") > Length(name + ".sig.5"));
+            Assert.That(Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.1") 
+                > Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.2"));
+            Assert.That(Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.2") 
+                > Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.3"));
+            Assert.That(Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.3") 
+                > Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.4"));
+            Assert.That(Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.4") 
+                > Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.5"));
         }
 
         static long Length(string fileName)

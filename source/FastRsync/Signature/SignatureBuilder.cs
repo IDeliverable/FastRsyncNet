@@ -15,11 +15,15 @@ namespace FastRsync.Signature
 
         private short chunkSize;
 
-        public SignatureBuilder()
+        public SignatureBuilder() : this(SupportedAlgorithms.Hashing.Default(), SupportedAlgorithms.Checksum.Default())
         {
+        }
+
+        public SignatureBuilder(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm)
+        {
+            HashAlgorithm = hashAlgorithm;
+            RollingChecksumAlgorithm = rollingChecksumAlgorithm;
             ChunkSize = DefaultChunkSize;
-            HashAlgorithm = SupportedAlgorithms.Hashing.Default();
-            RollingChecksumAlgorithm = SupportedAlgorithms.Checksum.Default();
             ProgressReport = null;
         }
 
