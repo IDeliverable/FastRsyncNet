@@ -24,10 +24,10 @@ namespace FastRsync.Delta
             var signature = signatureReader.ReadSignature();
             var chunks = signature.Chunks;
 
-            var hash = signature.HashAlgorithm.ComputeHash(newFileStream);
+            var newFileHash = signature.HashAlgorithm.ComputeHash(newFileStream);
             newFileStream.Seek(0, SeekOrigin.Begin);
 
-            deltaWriter.WriteMetadata(signature.HashAlgorithm, hash);
+            deltaWriter.WriteMetadata(signature.HashAlgorithm, newFileHash);
 
             chunks = OrderChunksByChecksum(chunks);
 
@@ -98,9 +98,9 @@ namespace FastRsync.Delta
                     {
                         var chunk = chunks[j];
 
-                        var sha = signature.HashAlgorithm.ComputeHash(buffer, i, remainingPossibleChunkSize);
+                        var hash = signature.HashAlgorithm.ComputeHash(buffer, i, remainingPossibleChunkSize);
 
-                        if (StructuralComparisons.StructuralEqualityComparer.Equals(sha, chunks[j].Hash))
+                        if (StructuralComparisons.StructuralEqualityComparer.Equals(hash, chunks[j].Hash))
                         {
                             readSoFar = readSoFar + remainingPossibleChunkSize;
 
