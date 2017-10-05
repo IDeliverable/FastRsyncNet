@@ -35,7 +35,7 @@ namespace FastRsync.Signature
 
         public short ChunkSize
         {
-            get { return chunkSize; }
+            get => chunkSize;
             set
             {
                 if (value < MinimumChunkSize)

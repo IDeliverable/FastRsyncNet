@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace FastRsync.Hash
 {
@@ -18,6 +19,11 @@ namespace FastRsync.Hash
         public byte[] ComputeHash(Stream stream)
         {
             return algorithm.ComputeHash(stream);
+        }
+
+        public async Task<byte[]> ComputeHashAsync(Stream stream)
+        {
+            return await algorithm.ComputeHashAsync(stream).ConfigureAwait(false);
         }
 
         public byte[] ComputeHash(byte[] buffer, int offset, int length)

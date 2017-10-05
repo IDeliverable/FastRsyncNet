@@ -8,8 +8,6 @@ namespace FastRsync.Core
         public short Length;                // 2
         public byte[] Hash;                 // depending on hash (20 for SHA1, 8 for xxHash64)
         public UInt32 RollingChecksum;      // 4
-                                            // 26 bytes on disk
-                                            // 34 bytes in memory
 
         public override string ToString()
         {

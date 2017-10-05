@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Threading.Tasks;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
 using FastRsync.Exceptions;
@@ -101,6 +102,45 @@ namespace FastRsync.Delta
                         var bytes = reader.ReadBytes((int) Math.Min(length - soFar, 1024*1024*4));
                         soFar += bytes.Length;
                         writeData(bytes);
+                    }
+                }
+            }
+        }
+
+        public async Task ApplyAsync(
+            Func<byte[], Task> writeData,
+            Func<long, long, Task> copy)
+        {
+            var fileLength = reader.BaseStream.Length;
+
+            EnsureMetadata();
+
+            while (reader.BaseStream.Position != fileLength)
+            {
+                var b = reader.ReadByte();
+
+                progressReport?.Report(new ProgressReport
+                {
+                    Operation = ProgressOperationType.ApplyingDelta,
+                    CurrentPosition = reader.BaseStream.Position,
+                    Total = fileLength
+                });
+
+                if (b == BinaryFormat.CopyCommand)
+                {
+                    var start = reader.ReadInt64();
+                    var length = reader.ReadInt64();
+                    await copy(start, length).ConfigureAwait(false);
+                }
+                else if (b == BinaryFormat.DataCommand)
+                {
+                    var length = reader.ReadInt64();
+                    long soFar = 0;
+                    while (soFar < length)
+                    {
+                        var bytes = reader.ReadBytes((int)Math.Min(length - soFar, 1024 * 1024 * 4));
+                        soFar += bytes.Length;
+                        await writeData(bytes).ConfigureAwait(false);
                     }
                 }
             }
