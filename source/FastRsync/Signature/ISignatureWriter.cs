@@ -33,11 +33,16 @@ namespace FastRsync.Signature
 
         public async Task WriteMetadataAsync(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm)
         {
-            signaturebw.Write(BinaryFormat.SignatureHeader);
-            signaturebw.Write(BinaryFormat.Version);
-            signaturebw.Write(hashAlgorithm.Name);
-            signaturebw.Write(rollingChecksumAlgorithm.Name);
-            signaturebw.Write(BinaryFormat.EndOfMetadata);
+            var ms = new MemoryStream();
+            var msbw = new BinaryWriter(ms);
+            msbw.Write(BinaryFormat.SignatureHeader);
+            msbw.Write(BinaryFormat.Version);
+            msbw.Write(hashAlgorithm.Name);
+            msbw.Write(rollingChecksumAlgorithm.Name);
+            msbw.Write(BinaryFormat.EndOfMetadata);
+            ms.Seek(0, SeekOrigin.Begin);
+
+            await ms.CopyToAsync(signaturebw.BaseStream).ConfigureAwait(false);
         }
 
         public void WriteChunk(ChunkSignature signature)

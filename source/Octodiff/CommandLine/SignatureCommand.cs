@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FastRsync.Core;
 using FastRsync.Diagnostics;
 using FastRsync.Signature;
 using Octodiff.CommandLine.Support;

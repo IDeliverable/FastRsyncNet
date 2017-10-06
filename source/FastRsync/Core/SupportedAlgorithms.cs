@@ -1,5 +1,5 @@
+using System;
 using System.Security.Cryptography;
-using FastRsync.Exceptions;
 using FastRsync.Hash;
 
 namespace FastRsync.Core
@@ -31,7 +31,7 @@ namespace FastRsync.Core
                 if (algorithm == "SHA1")
                     return Sha1();
 
-                throw new CompatibilityException($"The hash algorithm '{algorithm}' is not supported");
+                throw new NotSupportedException($"The hash algorithm '{algorithm}' is not supported");
             }
         }
 
@@ -48,8 +48,7 @@ namespace FastRsync.Core
             {
                 if (algorithm == "Adler32")
                     return Adler32Rolling();
-                throw new CompatibilityException(
-                    $"The rolling checksum algorithm '{algorithm}' is not supported");
+                throw new NotSupportedException($"The rolling checksum algorithm '{algorithm}' is not supported");
             }
         }
     }

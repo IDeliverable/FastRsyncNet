@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
-using FastRsync.Exceptions;
 using FastRsync.Hash;
 
 namespace FastRsync.Delta
@@ -50,11 +49,11 @@ namespace FastRsync.Delta
 
             var first = reader.ReadBytes(BinaryFormat.DeltaHeader.Length);
             if (!StructuralComparisons.StructuralEqualityComparer.Equals(first, BinaryFormat.DeltaHeader))
-                throw new CorruptFileFormatException("The delta file appears to be corrupt.");
+                throw new InvalidDataException("The delta file appears to be corrupt.");
 
             var version = reader.ReadByte();
             if (version != BinaryFormat.Version)
-                throw new CorruptFileFormatException("The delta file uses a newer file format than this program can handle.");
+                throw new InvalidDataException("The delta file uses a newer file format than this program can handle.");
 
             var hashAlgorithmName = reader.ReadString();
             hashAlgorithm = SupportedAlgorithms.Hashing.Create(hashAlgorithmName);
@@ -63,7 +62,7 @@ namespace FastRsync.Delta
             expectedHash = reader.ReadBytes(hashLength);
             var endOfMeta = reader.ReadBytes(BinaryFormat.EndOfMetadata.Length);
             if (!StructuralComparisons.StructuralEqualityComparer.Equals(BinaryFormat.EndOfMetadata, endOfMeta))
-                throw new CorruptFileFormatException("The signature file appears to be corrupt.");
+                throw new InvalidDataException("The signature file appears to be corrupt.");
 
             hasReadMetadata = true;
         }

@@ -60,8 +60,6 @@
     <Compile Include="Core\BinaryFormat.cs" />
     <Compile Include="Core\ChunkSignature.cs" />
     <Compile Include="Core\ChunkSignatureChecksumComparer.cs" />
-    <Compile Include="Exceptions\CompatibilityException.cs" />
-    <Compile Include="Exceptions\CorruptFileFormatException.cs" />
     <Compile Include="Delta\DataRange.cs" />
     <Compile Include="Delta\DeltaApplier.cs" />
     <Compile Include="Delta\DeltaBuilder.cs" />
@@ -76,7 +74,6 @@
     <Compile Include="Signature\SignatureBuilder.cs" />
     <Compile Include="Signature\SignatureReader.cs" />
     <Compile Include="Core\SupportedAlgorithms.cs" />
-    <Compile Include="Exceptions\UsageException.cs" />
     <Compile Include="Hash\XxHashAlgorithm.cs" />
     <Compile Include="Diagnostics\ConsoleProgressReporter.cs" />
     <Compile Include="Diagnostics\ProgressReport.cs" />

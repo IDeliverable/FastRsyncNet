@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
-using FastRsync.Exceptions;
 
 namespace FastRsync.Signature
 {
@@ -23,18 +22,18 @@ namespace FastRsync.Signature
             Progress();
             var header = reader.ReadBytes(BinaryFormat.SignatureHeader.Length);
             if (!StructuralComparisons.StructuralEqualityComparer.Equals(BinaryFormat.SignatureHeader, header)) 
-                throw new CorruptFileFormatException("The signature file appears to be corrupt.");
+                throw new InvalidDataException("The signature file appears to be corrupt.");
 
             var version = reader.ReadByte();
             if (version != BinaryFormat.Version)
-                throw new CorruptFileFormatException("The signature file uses a newer file format than this program can handle.");
+                throw new InvalidDataException("The signature file uses a newer file format than this program can handle.");
 
             var hashAlgorithm = reader.ReadString();
             var rollingChecksumAlgorithm = reader.ReadString();
 
             var endOfMeta = reader.ReadBytes(BinaryFormat.EndOfMetadata.Length);
             if (!StructuralComparisons.StructuralEqualityComparer.Equals(BinaryFormat.EndOfMetadata, endOfMeta)) 
-                throw new CorruptFileFormatException("The signature file appears to be corrupt.");
+                throw new InvalidDataException("The signature file appears to be corrupt.");
 
             Progress();
 
@@ -50,7 +49,7 @@ namespace FastRsync.Signature
             var remainingBytes = fileLength - reader.BaseStream.Position;
             var signatureSize = sizeof (ushort) + sizeof (uint) + expectedHashLength;
             if (remainingBytes % signatureSize != 0)
-                throw new CorruptFileFormatException("The signature file appears to be corrupt; at least one chunk has data missing.");
+                throw new InvalidDataException("The signature file appears to be corrupt; at least one chunk has data missing.");
 
             while (reader.BaseStream.Position < fileLength - 1)
             {

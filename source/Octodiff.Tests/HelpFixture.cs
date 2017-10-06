@@ -1,5 +1,4 @@
-﻿using System.Runtime.ExceptionServices;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Octodiff.Tests.Util;
 
 namespace Octodiff.Tests

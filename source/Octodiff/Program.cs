@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FastRsync.Core;
-using FastRsync.Exceptions;
 using Octodiff.CommandLine;
 using Octodiff.CommandLine.Support;
 
@@ -35,7 +33,7 @@ namespace Octodiff
                 locator.Create(locator.Find("help")).Execute(new[] {commandName});
                 return 4;
             }
-            catch (UsageException ex)
+            catch (ArgumentException ex)
             {
                 WriteError(ex);
                 return 4;
@@ -45,7 +43,7 @@ namespace Octodiff
                 WriteError(ex);
                 return 4;
             }
-            catch (CorruptFileFormatException ex)
+            catch (InvalidDataException ex)
             {
                 WriteError(ex);
                 return 2;

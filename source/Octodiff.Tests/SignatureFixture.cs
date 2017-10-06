@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Runtime.ExceptionServices;
 using NUnit.Framework;
 using Octodiff.Tests.Util;
 

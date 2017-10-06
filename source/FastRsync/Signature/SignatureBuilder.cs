@@ -1,8 +1,8 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
-using FastRsync.Exceptions;
 using FastRsync.Hash;
 
 namespace FastRsync.Signature
@@ -39,9 +39,9 @@ namespace FastRsync.Signature
             set
             {
                 if (value < MinimumChunkSize)
-                    throw new UsageException($"Chunk size cannot be less than {MinimumChunkSize}");
+                    throw new ArgumentException($"Chunk size cannot be less than {MinimumChunkSize}");
                 if (value > MaximumChunkSize)
-                    throw new UsageException($"Chunk size cannot be exceed {MaximumChunkSize}");
+                    throw new ArgumentException($"Chunk size cannot be exceed {MaximumChunkSize}");
                 chunkSize = value;
             }
         }
@@ -50,6 +50,12 @@ namespace FastRsync.Signature
         {
             WriteMetadata(stream, signatureWriter);
             WriteChunkSignatures(stream, signatureWriter);
+        }
+
+        public async Task BuildAsync(Stream stream, ISignatureWriter signatureWriter)
+        {
+            await WriteMetadataAsync(stream, signatureWriter).ConfigureAwait(false);
+            await WriteChunkSignaturesAsync(stream, signatureWriter).ConfigureAwait(false);
         }
 
         private void WriteMetadata(Stream stream, ISignatureWriter signatureWriter)
@@ -62,8 +68,27 @@ namespace FastRsync.Signature
             });
 
             stream.Seek(0, SeekOrigin.Begin);
-
             signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm);
+
+            ProgressReport?.Report(new ProgressReport
+            {
+                Operation = ProgressOperationType.HashingFile,
+                CurrentPosition = stream.Length,
+                Total = stream.Length
+            });
+        }
+
+        private async Task WriteMetadataAsync(Stream stream, ISignatureWriter signatureWriter)
+        {
+            ProgressReport?.Report(new ProgressReport
+            {
+                Operation = ProgressOperationType.HashingFile,
+                CurrentPosition = 0,
+                Total = stream.Length
+            });
+
+            stream.Seek(0, SeekOrigin.Begin);
+            await signatureWriter.WriteMetadataAsync(HashAlgorithm, RollingChecksumAlgorithm).ConfigureAwait(false);
 
             ProgressReport?.Report(new ProgressReport
             {
@@ -98,6 +123,42 @@ namespace FastRsync.Signature
                     Hash = hashAlgorithm.ComputeHash(block, 0, read),
                     RollingChecksum = checksumAlgorithm.Calculate(block, 0, read)
                 });
+
+                start += read;
+                ProgressReport?.Report(new ProgressReport
+                {
+                    Operation = ProgressOperationType.BuildingSignatures,
+                    CurrentPosition = start,
+                    Total = stream.Length
+                });
+            }
+        }
+
+        private async Task WriteChunkSignaturesAsync(Stream stream, ISignatureWriter signatureWriter)
+        {
+            var checksumAlgorithm = RollingChecksumAlgorithm;
+            var hashAlgorithm = HashAlgorithm;
+
+            ProgressReport?.Report(new ProgressReport
+            {
+                Operation = ProgressOperationType.BuildingSignatures,
+                CurrentPosition = 0,
+                Total = stream.Length
+            });
+            stream.Seek(0, SeekOrigin.Begin);
+
+            long start = 0;
+            int read;
+            var block = new byte[ChunkSize];
+            while ((read = await stream.ReadAsync(block, 0, block.Length).ConfigureAwait(false)) > 0)
+            {
+                await signatureWriter.WriteChunkAsync(new ChunkSignature
+                {
+                    StartOffset = start,
+                    Length = (short)read,
+                    Hash = hashAlgorithm.ComputeHash(block, 0, read),
+                    RollingChecksum = checksumAlgorithm.Calculate(block, 0, read)
+                }).ConfigureAwait(false);
 
                 start += read;
                 ProgressReport?.Report(new ProgressReport
