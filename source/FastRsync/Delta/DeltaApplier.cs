@@ -7,16 +7,19 @@ namespace FastRsync.Delta
 {
     public class DeltaApplier
     {
-        public DeltaApplier()
+        private readonly int readBufferSize;
+
+        public DeltaApplier(int readBufferSize = 4 * 1024 * 1024)
         {
             SkipHashCheck = false;
+            this.readBufferSize = readBufferSize;
         }
 
         public bool SkipHashCheck { get; set; }
 
         public void Apply(Stream basisFileStream, IDeltaReader delta, Stream outputStream)
         {
-            var buffer = new byte[4 * 1024 * 1024];
+            var buffer = new byte[readBufferSize];
 
             delta.Apply(
                 writeData: (data) => outputStream.Write(data, 0, data.Length),
@@ -45,7 +48,7 @@ namespace FastRsync.Delta
 
         public async Task ApplyAsync(Stream basisFileStream, IDeltaReader delta, Stream outputStream)
         {
-            var buffer = new byte[4 * 1024 * 1024];
+            var buffer = new byte[readBufferSize];
 
             await delta.ApplyAsync(
                 writeData: async (data) => await outputStream.WriteAsync(data, 0, data.Length).ConfigureAwait(false),

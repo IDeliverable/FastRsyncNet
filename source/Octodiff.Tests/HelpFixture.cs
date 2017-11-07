@@ -12,7 +12,7 @@ namespace Octodiff.Tests
         [TestCase(4, "foo")]
         public void ShouldPrintGeneralHelp(int exitCode, string args)
         {
-            Run(args);
+            Run(args, OctodiffAppVariant.Sync);
             Assert.That(ExitCode, Is.EqualTo(exitCode));
             Assert.That(Output, Does.Contain("Usage: Octodiff <command>"));
             Assert.That(Output, Does.Not.Contain("Error"));
@@ -25,7 +25,7 @@ namespace Octodiff.Tests
         [TestCase(0, "help explain-delta", "explain-delta")]
         public void ShouldPrintCommandHelp(int exitCode, string args, string commandName)
         {
-            Run(args);
+            Run(args, OctodiffAppVariant.Sync);
             Assert.That(ExitCode, Is.EqualTo(exitCode));
             Assert.That(Output, Does.Contain("Usage: Octodiff " + commandName));
             Assert.That(Output, Does.Contain("Usage: Octodiff " + commandName));
@@ -41,7 +41,7 @@ namespace Octodiff.Tests
         [TestCase(4, "patch foo.nupkg foo.delta", "No new file was specified")]
         public void ShouldPrintHelpWhenAllArgumentsAreNotSpecified(int exitCode, string args, string text)
         {
-            Run(args);
+            Run(args, OctodiffAppVariant.Sync);
             Assert.That(ExitCode, Is.EqualTo(exitCode));
             Assert.That(Output, Does.Contain("Usage"));
             Assert.That(Output, Does.Contain("Error: " + text));

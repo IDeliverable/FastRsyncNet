@@ -10,20 +10,23 @@ namespace Octodiff.Tests
     public class TimingsFixture : CommandLineFixture
     {
         [Test]
-        [TestCase("SmallPackage1mb.zip", 10)]
-        [TestCase("SmallPackage10mb.zip", 100)]
-        [TestCase("SmallPackage100mb.zip", 1000)]
-        public void ExecuteWithTimings(string name, int numberOfFiles)
+        [TestCase("SmallPackage1mb.zip", 10, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage10mb.zip", 100, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage100mb.zip", 1000, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage1mb.zip", 10, OctodiffAppVariant.Async)]
+        [TestCase("SmallPackage10mb.zip", 100, OctodiffAppVariant.Async)]
+        [TestCase("SmallPackage100mb.zip", 1000, OctodiffAppVariant.Async)]
+        public void ExecuteWithTimings(string name, int numberOfFiles, OctodiffAppVariant octodiff)
         {
             var newName = Path.ChangeExtension(name, "2.zip");
             var copyName = Path.ChangeExtension(name, "2_out.zip");
 
             Time("Package creation", () => PackageGenerator.GeneratePackage(name, numberOfFiles));
             Time("Package modification", () => PackageGenerator.ModifyPackage(name, newName, (int)(0.33 * numberOfFiles), (int)(0.10 * numberOfFiles)));
-            Time("Signature creation", () => Run("signature " + name + " " + name + ".sig"));
-            Time("Delta creation", () => Run("delta " + name + ".sig " + newName + " " + name + ".delta"));
-            Time("Patch application", () => Run("patch " + name + " " + name + ".delta" + " " + copyName));
-            Time("Patch application (no verify)", () => Run("patch " + name + " " + name + ".delta" + " " + copyName + " --skip-verification"));
+            Time("Signature creation", () => Run("signature " + name + " " + name + ".sig", octodiff));
+            Time("Delta creation", () => Run("delta " + name + ".sig " + newName + " " + name + ".delta", octodiff));
+            Time("Patch application", () => Run("patch " + name + " " + name + ".delta" + " " + copyName, octodiff));
+            Time("Patch application (no verify)", () => Run("patch " + name + " " + name + ".delta" + " " + copyName + " --skip-verification", octodiff));
         }
 
         static void Time(string task, Action callback)

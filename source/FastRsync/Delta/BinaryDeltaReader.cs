@@ -15,11 +15,13 @@ namespace FastRsync.Delta
         private byte[] expectedHash;
         private IHashAlgorithm hashAlgorithm;
         private bool hasReadMetadata;
+        private readonly int readBufferSize;
 
-        public BinaryDeltaReader(Stream stream, IProgress<ProgressReport> progressHandler)
+        public BinaryDeltaReader(Stream stream, IProgress<ProgressReport> progressHandler, int readBufferSize = 4 * 1024 * 1024)
         {
             this.reader = new BinaryReader(stream);
             this.progressReport = progressHandler;
+            this.readBufferSize = readBufferSize;
         }
 
         public byte[] ExpectedHash
@@ -98,7 +100,7 @@ namespace FastRsync.Delta
                     long soFar = 0;
                     while (soFar < length)
                     {
-                        var bytes = reader.ReadBytes((int) Math.Min(length - soFar, 1024*1024*4));
+                        var bytes = reader.ReadBytes((int) Math.Min(length - soFar, readBufferSize));
                         soFar += bytes.Length;
                         writeData(bytes);
                     }
@@ -113,6 +115,8 @@ namespace FastRsync.Delta
             var fileLength = reader.BaseStream.Length;
 
             EnsureMetadata();
+
+            var buffer = new byte[readBufferSize];
 
             while (reader.BaseStream.Position != fileLength)
             {
@@ -137,7 +141,14 @@ namespace FastRsync.Delta
                     long soFar = 0;
                     while (soFar < length)
                     {
-                        var bytes = reader.ReadBytes((int)Math.Min(length - soFar, 1024 * 1024 * 4));
+                        var bytesRead = await reader.BaseStream.ReadAsync(buffer, 0, (int) Math.Min(length - soFar, buffer.Length)).ConfigureAwait(false);
+                        var bytes = buffer;
+                        if (bytesRead != buffer.Length)
+                        {
+                            bytes = new byte[bytesRead];
+                            Array.Copy(buffer, bytes, bytesRead);
+                        }
+
                         soFar += bytes.Length;
                         await writeData(bytes).ConfigureAwait(false);
                     }

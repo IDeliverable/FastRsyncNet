@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Octodiff.CommandLine;
-using Octodiff.CommandLine.Support;
+using OctodiffAsync.CommandLine.Support;
 
-namespace Octodiff
+namespace OctodiffAsync
 {
-    public class Program
+    public class OctodiffAsyncProgram
     {
         static int Main(string[] args)
         {

@@ -9,14 +9,17 @@ namespace Octodiff.Tests
     public class SignatureFixture : CommandLineFixture
     {
         [Test]
-        [TestCase("SmallPackage1mb.zip", 10)]
-        [TestCase("SmallPackage10mb.zip", 100)]
-        [TestCase("SmallPackage100mb.zip", 1000)]
-        public void ShouldCreateSignature(string name, int numberOfFiles)
+        [TestCase("SmallPackage1mb.zip", 10, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage10mb.zip", 100, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage100mb.zip", 1000, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage1mb.zip", 10, OctodiffAppVariant.Async)]
+        [TestCase("SmallPackage10mb.zip", 100, OctodiffAppVariant.Async)]
+        [TestCase("SmallPackage100mb.zip", 1000, OctodiffAppVariant.Async)]
+        public void ShouldCreateSignature(string name, int numberOfFiles, OctodiffAppVariant octodiff)
         {
             PackageGenerator.GeneratePackage(name, numberOfFiles);
 
-            Run("signature " + name + " " + name + ".sig");
+            Run("signature " + name + " " + name + ".sig", octodiff);
             Assert.That(ExitCode, Is.EqualTo(0));
 
             var basisSize = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, name)).Length;
@@ -28,19 +31,23 @@ namespace Octodiff.Tests
             Trace.WriteLine(string.Format("Signature ratio: {0:n3}", signatureSizePercentageOfBasis));
             Assert.IsTrue(0.006 <= signatureSizePercentageOfBasis && signatureSizePercentageOfBasis <= 0.014);
         }
+
         [Test]
-        [TestCase("SmallPackage1mb.zip", 10)]
-        [TestCase("SmallPackage10mb.zip", 100)]
-        [TestCase("SmallPackage100mb.zip", 1000)]
-        public void ShouldCreateDifferentSignaturesBasedOnChunkSize(string name, int numberOfFiles)
+        [TestCase("SmallPackage1mb.zip", 10, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage10mb.zip", 100, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage100mb.zip", 1000, OctodiffAppVariant.Sync)]
+        [TestCase("SmallPackage1mb.zip", 10, OctodiffAppVariant.Async)]
+        [TestCase("SmallPackage10mb.zip", 100, OctodiffAppVariant.Async)]
+        [TestCase("SmallPackage100mb.zip", 1000, OctodiffAppVariant.Async)]
+        public void ShouldCreateDifferentSignaturesBasedOnChunkSize(string name, int numberOfFiles, OctodiffAppVariant octodiff)
         {
             PackageGenerator.GeneratePackage(name, numberOfFiles);
 
-            Run("signature " + name + " " + name + ".sig.1 --chunk-size=128");
-            Run("signature " + name + " " + name + ".sig.2 --chunk-size=256");
-            Run("signature " + name + " " + name + ".sig.3 --chunk-size=1024");
-            Run("signature " + name + " " + name + ".sig.4 --chunk-size=2048");
-            Run("signature " + name + " " + name + ".sig.5 --chunk-size=31744");
+            Run("signature " + name + " " + name + ".sig.1 --chunk-size=128", octodiff);
+            Run("signature " + name + " " + name + ".sig.2 --chunk-size=256", octodiff);
+            Run("signature " + name + " " + name + ".sig.3 --chunk-size=1024", octodiff);
+            Run("signature " + name + " " + name + ".sig.4 --chunk-size=2048", octodiff);
+            Run("signature " + name + " " + name + ".sig.5 --chunk-size=31744", octodiff);
 
             Assert.That(Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.1") 
                 > Length(Path.Combine(TestContext.CurrentContext.TestDirectory, name) + ".sig.2"));

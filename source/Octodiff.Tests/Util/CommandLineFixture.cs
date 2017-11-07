@@ -2,10 +2,17 @@
 using System.Diagnostics;
 using System.Text;
 using NUnit.Framework;
+using OctodiffAsync;
 using Octopus.Platform.Util;
 
 namespace Octodiff.Tests.Util
 {
+    public enum OctodiffAppVariant
+    {
+        Sync,
+        Async
+    }
+
     public abstract class CommandLineFixture
     {
         protected string StdErr { get; private set; }
@@ -13,12 +20,14 @@ namespace Octodiff.Tests.Util
         protected string Output { get; private set; }
         protected int ExitCode { get; set; }
 
-        public void Run(string args)
+        public void Run(string args, OctodiffAppVariant octodiff)
         {
             var stdErrBuilder = new StringBuilder();
             var stdOutBuilder = new StringBuilder();
             var outputBuilder = new StringBuilder();
-            var path = new Uri(typeof (Program).Assembly.CodeBase).LocalPath;
+            var path = octodiff == OctodiffAppVariant.Sync ? 
+                new Uri(typeof (OctodiffProgram).Assembly.CodeBase).LocalPath
+                : new Uri(typeof(OctodiffAsyncProgram).Assembly.CodeBase).LocalPath;
 
             var exit = SilentProcessRunner.ExecuteCommand(path,
                 args,

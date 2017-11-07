@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using FastRsync.Delta;
 using FastRsync.Hash;
 
@@ -28,6 +29,12 @@ namespace FastRsync.Core
             decorated.WriteDataCommand(source, offset, length);
         }
 
+        public async Task WriteDataCommandAsync(Stream source, long offset, long length)
+        {
+            FlushCurrentCopyCommand();
+            await decorated.WriteDataCommandAsync(source, offset, length).ConfigureAwait(false);
+        }
+
         public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] expectedNewFileHash)
         {
             decorated.WriteMetadata(hashAlgorithm, expectedNewFileHash);
@@ -46,9 +53,12 @@ namespace FastRsync.Core
             }
         }
 
-        void FlushCurrentCopyCommand()
+        private void FlushCurrentCopyCommand()
         {
-            if (bufferedCopy.Length <= 0) return;
+            if (bufferedCopy.Length <= 0)
+            {
+                return;
+            }
 
             decorated.WriteCopyCommand(bufferedCopy);
             bufferedCopy = new DataRange();

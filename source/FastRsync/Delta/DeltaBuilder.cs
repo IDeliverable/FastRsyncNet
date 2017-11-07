@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
 using FastRsync.Signature;
@@ -10,11 +11,12 @@ namespace FastRsync.Delta
 {
     public class DeltaBuilder
     {
-        private const int ReadBufferSize = 4*1024*1024;
+        private readonly int readBufferSize;
 
-        public DeltaBuilder()
+        public DeltaBuilder(int readBufferSize = 4 * 1024 * 1024)
         {
             ProgressReport = null;
+            this.readBufferSize = readBufferSize;
         }
 
         public IProgress<ProgressReport> ProgressReport { get; set; }
@@ -31,11 +33,9 @@ namespace FastRsync.Delta
 
             chunks = OrderChunksByChecksum(chunks);
 
-            int minChunkSize;
-            int maxChunkSize;
-            var chunkMap = CreateChunkMap(chunks, out maxChunkSize, out minChunkSize);
+            var chunkMap = CreateChunkMap(chunks, out int maxChunkSize, out int minChunkSize);
 
-            var buffer = new byte[ReadBufferSize];
+            var buffer = new byte[readBufferSize];
             long lastMatchPosition = 0;
 
             var fileSize = newFileStream.Length;
@@ -97,7 +97,6 @@ namespace FastRsync.Delta
                     for (var j = startIndex; j < chunks.Count && chunks[j].RollingChecksum == checksum; j++)
                     {
                         var chunk = chunks[j];
-
                         var hash = signature.HashAlgorithm.ComputeHash(buffer, i, remainingPossibleChunkSize);
 
                         if (StructuralComparisons.StructuralEqualityComparer.Equals(hash, chunks[j].Hash))
@@ -133,6 +132,117 @@ namespace FastRsync.Delta
             deltaWriter.Finish();
         }
 
+        public async Task BuildDeltaAsync(Stream newFileStream, ISignatureReader signatureReader, IDeltaWriter deltaWriter)
+        {
+            var signature = signatureReader.ReadSignature();
+            var chunks = signature.Chunks;
+
+            var newFileHash = await signature.HashAlgorithm.ComputeHashAsync(newFileStream).ConfigureAwait(false);
+            newFileStream.Seek(0, SeekOrigin.Begin);
+
+            deltaWriter.WriteMetadata(signature.HashAlgorithm, newFileHash);
+
+            chunks = OrderChunksByChecksum(chunks);
+
+            var chunkMap = CreateChunkMap(chunks, out int maxChunkSize, out int minChunkSize);
+
+            var buffer = new byte[readBufferSize];
+            long lastMatchPosition = 0;
+
+            var fileSize = newFileStream.Length;
+            ProgressReport?.Report(new ProgressReport
+            {
+                Operation = ProgressOperationType.BuildingDelta,
+                CurrentPosition = 0,
+                Total = fileSize
+            });
+
+            while (true)
+            {
+                var startPosition = newFileStream.Position;
+                var read = await newFileStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                if (read < 0)
+                    break;
+
+                var checksumAlgorithm = signature.RollingChecksumAlgorithm;
+                uint checksum = 0;
+
+                var remainingPossibleChunkSize = maxChunkSize;
+
+                for (var i = 0; i < read - minChunkSize + 1; i++)
+                {
+                    var readSoFar = startPosition + i;
+
+                    var remainingBytes = read - i;
+                    if (remainingBytes < maxChunkSize)
+                    {
+                        remainingPossibleChunkSize = minChunkSize;
+                    }
+
+                    if (i == 0 || remainingBytes < maxChunkSize)
+                    {
+                        checksum = checksumAlgorithm.Calculate(buffer, i, remainingPossibleChunkSize);
+                    }
+                    else
+                    {
+                        var remove = buffer[i - 1];
+                        var add = buffer[i + remainingPossibleChunkSize - 1];
+                        checksum = checksumAlgorithm.Rotate(checksum, remove, add, remainingPossibleChunkSize);
+                    }
+
+                    ProgressReport?.Report(new ProgressReport
+                    {
+                        Operation = ProgressOperationType.BuildingDelta,
+                        CurrentPosition = readSoFar,
+                        Total = fileSize
+                    });
+
+                    if (readSoFar - (lastMatchPosition - remainingPossibleChunkSize) < remainingPossibleChunkSize)
+                        continue;
+
+                    if (!chunkMap.ContainsKey(checksum))
+                        continue;
+
+                    var startIndex = chunkMap[checksum];
+
+                    for (var j = startIndex; j < chunks.Count && chunks[j].RollingChecksum == checksum; j++)
+                    {
+                        var chunk = chunks[j];
+                        var hash = signature.HashAlgorithm.ComputeHash(buffer, i, remainingPossibleChunkSize);
+
+                        if (StructuralComparisons.StructuralEqualityComparer.Equals(hash, chunks[j].Hash))
+                        {
+                            readSoFar = readSoFar + remainingPossibleChunkSize;
+
+                            var missing = readSoFar - lastMatchPosition;
+                            if (missing > remainingPossibleChunkSize)
+                            {
+                                await deltaWriter.WriteDataCommandAsync(newFileStream, lastMatchPosition, missing - remainingPossibleChunkSize).ConfigureAwait(false);
+                            }
+
+                            deltaWriter.WriteCopyCommand(new DataRange(chunk.StartOffset, chunk.Length));
+                            lastMatchPosition = readSoFar;
+                            break;
+                        }
+                    }
+                }
+
+                if (read < buffer.Length)
+                {
+                    break;
+                }
+
+                newFileStream.Position = newFileStream.Position - maxChunkSize + 1;
+            }
+
+            if (newFileStream.Length != lastMatchPosition)
+            {
+                await deltaWriter.WriteDataCommandAsync(newFileStream, lastMatchPosition, newFileStream.Length - lastMatchPosition).ConfigureAwait(false);
+            }
+
+            deltaWriter.Finish();
+        }
+
         private static List<ChunkSignature> OrderChunksByChecksum(List<ChunkSignature> chunks)
         {
             chunks.Sort(new ChunkSignatureChecksumComparer());
@@ -155,8 +265,15 @@ namespace FastRsync.Delta
             for (var i = 0; i < chunks.Count; i++)
             {
                 var chunk = chunks[i];
-                if (chunk.Length > maxChunkSize) maxChunkSize = chunk.Length;
-                if (chunk.Length < minChunkSize) minChunkSize = chunk.Length;
+                if (chunk.Length > maxChunkSize)
+                {
+                    maxChunkSize = chunk.Length;
+                }
+
+                if (chunk.Length < minChunkSize)
+                {
+                    minChunkSize = chunk.Length;
+                }
 
                 if (!chunkMap.ContainsKey(chunk.RollingChecksum))
                 {
