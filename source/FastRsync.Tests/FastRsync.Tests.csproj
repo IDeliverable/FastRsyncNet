@@ -49,8 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SignatureBuilderTests.cs" />
+    <Compile Include="Adler32RollingChecksumTests.cs" />
+    <Compile Include="SignatureBuilderRandomDataTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SignatureBuilderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FastRsync\FastRsync.csproj">
