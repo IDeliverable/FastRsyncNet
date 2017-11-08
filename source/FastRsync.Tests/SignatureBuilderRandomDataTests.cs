@@ -120,7 +120,7 @@ namespace FastRsync.Tests
                 ChunkSize = chunkSize,
                 ProgressReport = progressReporter
             };
-            await target.BuildAsync(dataStream, new SignatureWriter(signatureStream));
+            await target.BuildAsync(dataStream, new SignatureWriter(signatureStream)).ConfigureAwait(false);
 
             // Assert
             Assert.Greater(signatureStream.Length, 8 + 5 + 7 + 3);
@@ -160,7 +160,7 @@ namespace FastRsync.Tests
                 ChunkSize = chunkSize,
                 ProgressReport = progressReporter
             };
-            await target.BuildAsync(dataStream, new SignatureWriter(signatureStream));
+            await target.BuildAsync(dataStream, new SignatureWriter(signatureStream)).ConfigureAwait(false);
 
             // Assert
             Assert.Greater(signatureStream.Length, 8 + 4 + 7 + 3);

@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Adler32RollingChecksumTests.cs" />
+    <Compile Include="PatchingTests.cs" />
     <Compile Include="SignatureBuilderRandomDataTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SignatureBuilderTests.cs" />
