@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>FastRsyncNet</id>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
         <authors>Grzegorz Blok</authors>
         <owners>Grzegorz Blok</owners>
         <licenseUrl>https://github.com/GrzegorzBlok/FastRsyncNet/blob/master/LICENSE</licenseUrl>
@@ -15,6 +15,6 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="..\source\FastRsync\bin\Release\FastRsync.dll" target="lib\net45\FastRsync.dll" />
+        <file src="..\source\FastRsync\bin\Release\net45\FastRsync.dll" target="lib\net45\FastRsync.dll" />
     </files>
 </package>
