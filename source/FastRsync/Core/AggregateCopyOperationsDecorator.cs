@@ -35,9 +35,9 @@ namespace FastRsync.Core
             await decorated.WriteDataCommandAsync(source, offset, length).ConfigureAwait(false);
         }
 
-        public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] expectedNewFileHash)
+        public void WriteMetadata(DeltaMetadata metadata)
         {
-            decorated.WriteMetadata(hashAlgorithm, expectedNewFileHash);
+            decorated.WriteMetadata(metadata);
         }
 
         public void WriteCopyCommand(DataRange chunk)

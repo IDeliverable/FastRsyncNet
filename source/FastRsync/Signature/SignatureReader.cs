@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Text;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
+using Newtonsoft.Json;
 
 namespace FastRsync.Signature
 {
@@ -20,38 +22,85 @@ namespace FastRsync.Signature
         public Signature ReadSignature()
         {
             Progress();
-            var header = reader.ReadBytes(BinaryFormat.SignatureHeader.Length);
-            if (!StructuralComparisons.StructuralEqualityComparer.Equals(BinaryFormat.SignatureHeader, header)) 
-                throw new InvalidDataException("The signature file appears to be corrupt.");
+            var signature = ReadSignatureMetadata();
+            ReadChunks(signature);
+            return signature;
+        }
 
+        public Signature ReadSignatureMetadata()
+        {
+            var header = reader.ReadBytes(BinaryFormat.SignatureFormatHeaderLength);
+
+            if (StructuralComparisons.StructuralEqualityComparer.Equals(FastRsyncBinaryFormat.SignatureHeader,
+                header))
+            {
+                return ReadFastRsyncSignatureHeader();
+            }
+
+            if (StructuralComparisons.StructuralEqualityComparer.Equals(OctoBinaryFormat.SignatureHeader, header))
+            {
+                return ReadOctoSignatureHeader();
+            }
+
+            throw new InvalidDataException("The signature file uses a different file format than this program can handle.");
+        }
+
+        private Signature ReadFastRsyncSignatureHeader()
+        {
             var version = reader.ReadByte();
-            if (version != BinaryFormat.Version)
+            if (version != FastRsyncBinaryFormat.Version)
+                throw new InvalidDataException("The signature file uses a newer file format than this program can handle.");
+
+            var metadataLength = reader.ReadUInt16();
+
+            var metadataBytes = Encoding.ASCII.GetString(reader.ReadBytes(metadataLength));
+            var metadata = JsonConvert.DeserializeObject<SignatureMetadata>(metadataBytes, JsonSerializationSettings.JsonSettings);
+
+            var signature = new Signature(metadata, RsyncFormatType.FastRsync);
+
+            return signature;
+        }
+
+        private Signature ReadOctoSignatureHeader()
+        {
+            var version = reader.ReadByte();
+            if (version != OctoBinaryFormat.Version)
                 throw new InvalidDataException("The signature file uses a newer file format than this program can handle.");
 
             var hashAlgorithm = reader.ReadString();
             var rollingChecksumAlgorithm = reader.ReadString();
 
-            var endOfMeta = reader.ReadBytes(BinaryFormat.EndOfMetadata.Length);
-            if (!StructuralComparisons.StructuralEqualityComparer.Equals(BinaryFormat.EndOfMetadata, endOfMeta)) 
+            var endOfMeta = reader.ReadBytes(OctoBinaryFormat.EndOfMetadata.Length);
+            if (!StructuralComparisons.StructuralEqualityComparer.Equals(OctoBinaryFormat.EndOfMetadata, endOfMeta)) 
                 throw new InvalidDataException("The signature file appears to be corrupt.");
 
             Progress();
 
             var hashAlgo = SupportedAlgorithms.Hashing.Create(hashAlgorithm);
-            var signature = new Signature(
-                hashAlgo,
-                SupportedAlgorithms.Checksum.Create(rollingChecksumAlgorithm));
+            var rollingChecksumAlgo = SupportedAlgorithms.Checksum.Create(rollingChecksumAlgorithm);
+            var signature = new Signature(new SignatureMetadata
+                {
+                    ChunkHashAlgorithm = hashAlgo.Name,
+                    RollingChecksumAlgorithm = rollingChecksumAlgo.Name
+                }, RsyncFormatType.Octodiff);
 
-            var expectedHashLength = hashAlgo.HashLength;
+            ReadChunks(signature);
+
+            return signature;
+        }
+
+        private void ReadChunks(Signature signature)
+        {
+            var expectedHashLength = signature.HashAlgorithm.HashLength;
             long start = 0;
 
-            var fileLength = reader.BaseStream.Length;
-            var remainingBytes = fileLength - reader.BaseStream.Position;
-            var signatureSize = sizeof (ushort) + sizeof (uint) + expectedHashLength;
+            var signatureLength = reader.BaseStream.Length;
+            var remainingBytes = signatureLength - reader.BaseStream.Position;
+            var signatureSize = sizeof(ushort) + sizeof(uint) + expectedHashLength;
             if (remainingBytes % signatureSize != 0)
                 throw new InvalidDataException("The signature file appears to be corrupt; at least one chunk has data missing.");
 
-            while (reader.BaseStream.Position < fileLength - 1)
+            while (reader.BaseStream.Position < signatureLength - 1)
             {
                 var length = reader.ReadInt16();
                 var checksum = reader.ReadUInt32();
@@ -69,8 +118,6 @@ namespace FastRsync.Signature
 
                 Progress();
             }
-
-            return signature;
         }
 
         private void Progress()

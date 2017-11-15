@@ -26,10 +26,16 @@ namespace FastRsync.Delta
             var signature = signatureReader.ReadSignature();
             var chunks = signature.Chunks;
 
-            var newFileHash = signature.HashAlgorithm.ComputeHash(newFileStream);
+            var newFileVerificationHashAlgorithm = SupportedAlgorithms.Hashing.Md5();
+            var newFileHash = newFileVerificationHashAlgorithm.ComputeHash(newFileStream);
             newFileStream.Seek(0, SeekOrigin.Begin);
-
-            deltaWriter.WriteMetadata(signature.HashAlgorithm, newFileHash);
+            
+            deltaWriter.WriteMetadata(new DeltaMetadata
+            {
+                HashAlgorithm = signature.HashAlgorithm.Name,
+                ExpectedFileHashAlgorithm = newFileVerificationHashAlgorithm.Name,
+                ExpectedFileHash = Convert.ToBase64String(newFileHash)
+            });
 
             chunks = OrderChunksByChecksum(chunks);
 
@@ -137,10 +143,16 @@ namespace FastRsync.Delta
             var signature = signatureReader.ReadSignature();
             var chunks = signature.Chunks;
 
-            var newFileHash = await signature.HashAlgorithm.ComputeHashAsync(newFileStream).ConfigureAwait(false);
+            var newFileVerificationHashAlgorithm = SupportedAlgorithms.Hashing.Md5();
+            var newFileHash = await newFileVerificationHashAlgorithm.ComputeHashAsync(newFileStream).ConfigureAwait(false);
             newFileStream.Seek(0, SeekOrigin.Begin);
 
-            deltaWriter.WriteMetadata(signature.HashAlgorithm, newFileHash);
+            deltaWriter.WriteMetadata(new DeltaMetadata
+            {
+                HashAlgorithm = signature.HashAlgorithm.Name,
+                ExpectedFileHashAlgorithm = newFileVerificationHashAlgorithm.Name,
+                ExpectedFileHash = Convert.ToBase64String(newFileHash)
+            });
 
             chunks = OrderChunksByChecksum(chunks);
 

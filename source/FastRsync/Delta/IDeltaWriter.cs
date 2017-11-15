@@ -6,7 +6,7 @@ namespace FastRsync.Delta
 {
     public interface IDeltaWriter
     {
-        void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] expectedNewFileHash);
+        void WriteMetadata(DeltaMetadata metadata);
         void WriteCopyCommand(DataRange segment);
         void WriteDataCommand(Stream source, long offset, long length);
         Task WriteDataCommandAsync(Stream source, long offset, long length);

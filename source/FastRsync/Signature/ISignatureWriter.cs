@@ -1,14 +1,17 @@
+using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using FastRsync.Core;
 using FastRsync.Hash;
+using Newtonsoft.Json;
 
 namespace FastRsync.Signature
 {
     public interface ISignatureWriter
     {
-        void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm);
-        Task WriteMetadataAsync(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm);
+        void WriteMetadata(SignatureMetadata metadata);
+        Task WriteMetadataAsync(SignatureMetadata metadata);
         void WriteChunk(ChunkSignature signature);
         Task WriteChunkAsync(ChunkSignature signature);
     }
@@ -22,26 +25,27 @@ namespace FastRsync.Signature
             this.signaturebw = new BinaryWriter(signatureStream);
         }
 
-        public void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm)
+        private static void WriteMetadataInternal(BinaryWriter bw, SignatureMetadata metadata)
         {
-            signaturebw.Write(BinaryFormat.SignatureHeader);
-            signaturebw.Write(BinaryFormat.Version);
-            signaturebw.Write(hashAlgorithm.Name);
-            signaturebw.Write(rollingChecksumAlgorithm.Name);
-            signaturebw.Write(BinaryFormat.EndOfMetadata);
+            bw.Write(FastRsyncBinaryFormat.SignatureHeader);
+            bw.Write(FastRsyncBinaryFormat.Version);
+            var metadataBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(metadata, JsonSerializationSettings.JsonSettings));
+            var metadataLength = (ushort)metadataBytes.Length;
+            bw.Write(metadataLength);
+            bw.Write(metadataBytes);
         }
 
-        public async Task WriteMetadataAsync(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm)
+        public void WriteMetadata(SignatureMetadata metadata)
         {
-            var ms = new MemoryStream();
-            var msbw = new BinaryWriter(ms);
-            msbw.Write(BinaryFormat.SignatureHeader);
-            msbw.Write(BinaryFormat.Version);
-            msbw.Write(hashAlgorithm.Name);
-            msbw.Write(rollingChecksumAlgorithm.Name);
-            msbw.Write(BinaryFormat.EndOfMetadata);
-            ms.Seek(0, SeekOrigin.Begin);
+            WriteMetadataInternal(signaturebw, metadata);
+        }
 
+        public async Task WriteMetadataAsync(SignatureMetadata metadata)
+        {
+            var ms = new MemoryStream(256);
+            var msbw = new BinaryWriter(ms);
+            WriteMetadataInternal(msbw, metadata);
+            ms.Seek(0, SeekOrigin.Begin);
             await ms.CopyToAsync(signaturebw.BaseStream).ConfigureAwait(false);
         }
 
