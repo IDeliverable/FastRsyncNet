@@ -43,7 +43,7 @@ namespace FastRsync.Tests
             target.Build(dataStream, new SignatureWriter(signatureStream));
 
             // Assert
-            ValidateSignature(signatureStream, new XxHashAlgorithm());
+            CommonAsserts.ValidateSignature(signatureStream, new XxHashAlgorithm(), Utils.GetMd5(data));
 
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
         }
@@ -77,7 +77,7 @@ namespace FastRsync.Tests
             target.Build(dataStream, new SignatureWriter(signatureStream));
 
             // Assert
-            ValidateSignature(signatureStream, new HashAlgorithmWrapper("SHA1", SHA1.Create()));
+            CommonAsserts.ValidateSignature(signatureStream, new HashAlgorithmWrapper("SHA1", SHA1.Create()), Utils.GetMd5(data));
 
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
         }
@@ -111,7 +111,7 @@ namespace FastRsync.Tests
             await target.BuildAsync(dataStream, new SignatureWriter(signatureStream)).ConfigureAwait(false);
 
             // Assert
-            ValidateSignature(signatureStream, new XxHashAlgorithm());
+            CommonAsserts.ValidateSignature(signatureStream, new XxHashAlgorithm(), Utils.GetMd5(data));
 
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
         }
@@ -145,19 +145,9 @@ namespace FastRsync.Tests
             await target.BuildAsync(dataStream, new SignatureWriter(signatureStream)).ConfigureAwait(false);
 
             // Assert
-            ValidateSignature(signatureStream, new HashAlgorithmWrapper("SHA1", SHA1.Create()));
+            CommonAsserts.ValidateSignature(signatureStream, new HashAlgorithmWrapper("SHA1", SHA1.Create()), Utils.GetMd5(data));
 
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
-        }
-
-        private static void ValidateSignature(Stream signatureStream, IHashAlgorithm hashAlgorithm)
-        {
-            signatureStream.Seek(0, SeekOrigin.Begin);
-            var sig = new SignatureReader(signatureStream, null).ReadSignature();
-            Assert.AreEqual(RsyncFormatType.FastRsync, sig.Type);
-            Assert.AreEqual(hashAlgorithm.Name, sig.HashAlgorithm.Name);
-            Assert.AreEqual(hashAlgorithm.HashLength, sig.HashAlgorithm.HashLength);
-            Assert.AreEqual(new Adler32RollingChecksum().Name, sig.RollingChecksumAlgorithm.Name);
         }
     }
 }

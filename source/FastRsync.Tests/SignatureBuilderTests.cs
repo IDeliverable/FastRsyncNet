@@ -40,12 +40,7 @@ namespace FastRsync.Tests
             // Assert
             CollectionAssert.AreEqual(xxhash1037TestSignature, signatureStream.ToArray());
 
-            signatureStream.Seek(0, SeekOrigin.Begin);
-            var sig = new SignatureReader(signatureStream, null).ReadSignature();
-            Assert.AreEqual(RsyncFormatType.FastRsync, sig.Type);
-            Assert.AreEqual(new XxHashAlgorithm().Name, sig.HashAlgorithm.Name);
-            Assert.AreEqual(new XxHashAlgorithm().HashLength, sig.HashAlgorithm.HashLength);
-            Assert.AreEqual(new Adler32RollingChecksum().Name, sig.RollingChecksumAlgorithm.Name);
+            CommonAsserts.ValidateSignature(signatureStream, new XxHashAlgorithm(), Utils.GetMd5(data));
 
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
         }
@@ -72,12 +67,7 @@ namespace FastRsync.Tests
             // Assert
             CollectionAssert.AreEqual(xxhash1037TestSignature, signatureStream.ToArray());
 
-            signatureStream.Seek(0, SeekOrigin.Begin);
-            var sig = new SignatureReader(signatureStream, null).ReadSignature();
-            Assert.AreEqual(RsyncFormatType.FastRsync, sig.Type);
-            Assert.AreEqual(new XxHashAlgorithm().Name, sig.HashAlgorithm.Name);
-            Assert.AreEqual(new XxHashAlgorithm().HashLength, sig.HashAlgorithm.HashLength);
-            Assert.AreEqual(new Adler32RollingChecksum().Name, sig.RollingChecksumAlgorithm.Name);
+            CommonAsserts.ValidateSignature(signatureStream, new XxHashAlgorithm(), Utils.GetMd5(data));
 
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
         }
