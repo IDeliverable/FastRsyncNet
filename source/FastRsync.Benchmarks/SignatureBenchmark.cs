@@ -8,7 +8,13 @@ namespace FastRsync.Benchmarks
 {
     public class SignatureBenchmark
     {
-        private readonly byte[] data;
+        [Params(128, 16974, 356879)]
+        public int BaseFileSize { get; set; }
+
+        [Params(SignatureBuilder.MinimumChunkSize, SignatureBuilder.DefaultChunkSize, SignatureBuilder.MaximumChunkSize)]
+        public short ChunkSize { get; set; }
+
+        private byte[] data;
 
         private readonly SignatureBuilder xxHashSignatureBuilder =
             new SignatureBuilder(SupportedAlgorithms.Hashing.XxHash(), SupportedAlgorithms.Checksum.Adler32Rolling());
@@ -17,10 +23,15 @@ namespace FastRsync.Benchmarks
         private readonly SignatureBuilder md5SignatureBuilder =
             new SignatureBuilder(SupportedAlgorithms.Hashing.Md5(), SupportedAlgorithms.Checksum.Adler32Rolling());
 
-        public SignatureBenchmark()
+        [GlobalSetup]
+        public void GlobalSetup()
         {
-            data = new byte[16974];
+            data = new byte[BaseFileSize];
             new Random().NextBytes(data);
+
+            xxHashSignatureBuilder.ChunkSize = ChunkSize;
+            sha1SignatureBuilder.ChunkSize = ChunkSize;
+            md5SignatureBuilder.ChunkSize = ChunkSize;
         }
 
         [Benchmark]

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Reflection;
 using BenchmarkDotNet.Running;
 
 namespace FastRsync.Benchmarks
@@ -7,8 +7,7 @@ namespace FastRsync.Benchmarks
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<SignatureBenchmark>();
-            BenchmarkRunner.Run<RollingCheckSumBenchmark>();
+            BenchmarkSwitcher.FromAssembly(typeof(Program).GetTypeInfo().Assembly).Run(args);
         }
     }
 }

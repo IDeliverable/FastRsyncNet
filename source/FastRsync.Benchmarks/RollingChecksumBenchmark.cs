@@ -9,13 +9,17 @@ namespace FastRsync.Benchmarks
 {
     public class RollingCheckSumBenchmark
     {
-        private readonly byte[] data;
+        [Params(128, 16974, 356879)]
+        public int N { get; set; }
+
+        private byte[] data;
 
         private readonly IRollingChecksum adler32RollingAlgorithm = SupportedAlgorithms.Checksum.Adler32Rolling();
 
-        public RollingCheckSumBenchmark()
+        [GlobalSetup]
+        public void GlobalSetup()
         {
-            data = new byte[16974];
+            data = new byte[N];
             new Random().NextBytes(data);
         }
 
