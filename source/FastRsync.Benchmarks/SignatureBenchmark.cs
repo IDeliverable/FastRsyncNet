@@ -23,6 +23,8 @@ namespace FastRsync.Benchmarks
         private readonly SignatureBuilder md5SignatureBuilder =
             new SignatureBuilder(SupportedAlgorithms.Hashing.Md5(), SupportedAlgorithms.Checksum.Adler32Rolling());
 
+        private MemoryStream dataStream;
+
         [GlobalSetup]
         public void GlobalSetup()
         {
@@ -32,12 +34,14 @@ namespace FastRsync.Benchmarks
             xxHashSignatureBuilder.ChunkSize = ChunkSize;
             sha1SignatureBuilder.ChunkSize = ChunkSize;
             md5SignatureBuilder.ChunkSize = ChunkSize;
+
+            dataStream = new MemoryStream(data);
         }
 
         [Benchmark]
         public byte[] SignaturexxHash()
         {
-            var dataStream = new MemoryStream(data);
+            dataStream.Seek(0, SeekOrigin.Begin);
             var signatureStream = new MemoryStream();
             xxHashSignatureBuilder.Build(dataStream, new SignatureWriter(signatureStream));
             return signatureStream.ToArray();
@@ -46,7 +50,7 @@ namespace FastRsync.Benchmarks
         [Benchmark]
         public byte[] SignatureSha1()
         {
-            var dataStream = new MemoryStream(data);
+            dataStream.Seek(0, SeekOrigin.Begin);
             var signatureStream = new MemoryStream();
             sha1SignatureBuilder.Build(dataStream, new SignatureWriter(signatureStream));
             return signatureStream.ToArray();
@@ -55,7 +59,7 @@ namespace FastRsync.Benchmarks
         [Benchmark]
         public byte[] SignatureMd5()
         {
-            var dataStream = new MemoryStream(data);
+            dataStream.Seek(0, SeekOrigin.Begin);
             var signatureStream = new MemoryStream();
             md5SignatureBuilder.Build(dataStream, new SignatureWriter(signatureStream));
             return signatureStream.ToArray();

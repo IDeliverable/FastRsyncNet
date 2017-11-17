@@ -32,5 +32,21 @@ namespace FastRsync.Tests
 
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
         }
+
+        [Test]
+        public void SignatureReader_ReadsRandomData_ThrowsException()
+        {
+            // Arrange
+            var signatureData = new byte[1458];
+            new Random().NextBytes(signatureData);
+            var signatureStream = new MemoryStream(signatureData);
+            var progressReporter = Substitute.For<IProgress<ProgressReport>>();
+
+            // Act
+            var target = new SignatureReader(signatureStream, progressReporter);
+
+            // Assert
+            Assert.Throws<InvalidDataException>(() => target.ReadSignature());
+        }
     }
 }

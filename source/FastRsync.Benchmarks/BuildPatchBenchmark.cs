@@ -15,12 +15,14 @@ namespace FastRsync.Benchmarks
         [Params(16974, 128)]
         public int NewFileSize { get; set; }
 
-        private byte[] baseFileSignaturexxHash;
-        private byte[] baseFileSignatureSha1;
-        private byte[] baseFileSignatureMd5;
         private byte[] newFileData;
 
         private readonly DeltaBuilder deltaBuilder = new DeltaBuilder();
+
+        private MemoryStream newDataStream;
+        private MemoryStream baseSignatureSha1Stream;
+        private MemoryStream baseSignaturexxHashStream;
+        private MemoryStream baseSignatureMd5Stream;
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -34,40 +36,40 @@ namespace FastRsync.Benchmarks
 
             var baseDataStream = new MemoryStream(baseFileBytes);
 
+            newDataStream = new MemoryStream(newFileData);
+
             {
                 var xxHashSignatureBuilder = new SignatureBuilder(SupportedAlgorithms.Hashing.XxHash(),
                     SupportedAlgorithms.Checksum.Adler32Rolling());
-                var baseSignaturexxHashStream = new MemoryStream();
+                baseSignaturexxHashStream = new MemoryStream();
                 xxHashSignatureBuilder.Build(baseDataStream, new SignatureWriter(baseSignaturexxHashStream));
-                baseFileSignaturexxHash = baseSignaturexxHashStream.ToArray();
             }
 
             {
                 var sha1SignatureBuilder = new SignatureBuilder(SupportedAlgorithms.Hashing.Sha1(),
                     SupportedAlgorithms.Checksum.Adler32Rolling());
                 baseDataStream.Seek(0, SeekOrigin.Begin);
-                var baseSignatureSha1Stream = new MemoryStream();
+                baseSignatureSha1Stream = new MemoryStream();
                 sha1SignatureBuilder.Build(baseDataStream, new SignatureWriter(baseSignatureSha1Stream));
-                baseFileSignatureSha1 = baseSignatureSha1Stream.ToArray();
             }
 
             {
                 var md5SignatureBuilder = new SignatureBuilder(SupportedAlgorithms.Hashing.Md5(),
                     SupportedAlgorithms.Checksum.Adler32Rolling());
                 baseDataStream.Seek(0, SeekOrigin.Begin);
-                var baseSignatureMd5Stream = new MemoryStream();
+                baseSignatureMd5Stream = new MemoryStream();
                 md5SignatureBuilder.Build(baseDataStream, new SignatureWriter(baseSignatureMd5Stream));
-                baseFileSignatureMd5 = baseSignatureMd5Stream.ToArray();
             }
         }
 
         [Benchmark]
         public byte[] BuildPatchxxHash()
         {
+            newDataStream.Seek(0, SeekOrigin.Begin);
+            baseSignaturexxHashStream.Seek(0, SeekOrigin.Begin);
             var deltaStream = new MemoryStream();
-            var baseSignatureStream = new MemoryStream(baseFileSignaturexxHash);
-            var newDataStream = new MemoryStream(newFileData);
-            deltaBuilder.BuildDelta(newDataStream, new SignatureReader(baseSignatureStream, null), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
+            
+            deltaBuilder.BuildDelta(newDataStream, new SignatureReader(baseSignaturexxHashStream, null), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
 
             return deltaStream.ToArray();
         }
@@ -75,10 +77,11 @@ namespace FastRsync.Benchmarks
         [Benchmark]
         public byte[] BuildPatchSha1()
         {
+            newDataStream.Seek(0, SeekOrigin.Begin);
+            baseSignatureSha1Stream.Seek(0, SeekOrigin.Begin);
             var deltaStream = new MemoryStream();
-            var baseSignatureStream = new MemoryStream(baseFileSignatureSha1);
-            var newDataStream = new MemoryStream(newFileData);
-            deltaBuilder.BuildDelta(newDataStream, new SignatureReader(baseSignatureStream, null), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
+
+            deltaBuilder.BuildDelta(newDataStream, new SignatureReader(baseSignatureSha1Stream, null), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
 
             return deltaStream.ToArray();
         }
@@ -86,10 +89,11 @@ namespace FastRsync.Benchmarks
         [Benchmark]
         public byte[] BuildPatchMd5()
         {
+            newDataStream.Seek(0, SeekOrigin.Begin);
+            baseSignatureMd5Stream.Seek(0, SeekOrigin.Begin);
             var deltaStream = new MemoryStream();
-            var baseSignatureStream = new MemoryStream(baseFileSignatureMd5);
-            var newDataStream = new MemoryStream(newFileData);
-            deltaBuilder.BuildDelta(newDataStream, new SignatureReader(baseSignatureStream, null), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
+
+            deltaBuilder.BuildDelta(newDataStream, new SignatureReader(baseSignatureMd5Stream, null), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
 
             return deltaStream.ToArray();
         }

@@ -206,6 +206,42 @@ namespace FastRsync.Tests
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
         }
 
+        [Test]
+        [TestCase(8467, SignatureBuilder.DefaultChunkSize)]
+        public async Task PatchingAsyncXXHash_ForTheSameData_PatchesFile(int numberOfBytes, short chunkSize)
+        {
+            // Arrange
+            var baseData = new byte[numberOfBytes];
+            new Random().NextBytes(baseData);
+            var baseDataStream = new MemoryStream(baseData);
+            var baseSignatureStream = new MemoryStream();
+
+            var signatureBuilder = new SignatureBuilder
+            {
+                ChunkSize = chunkSize
+            };
+            signatureBuilder.Build(baseDataStream, new SignatureWriter(baseSignatureStream));
+            baseSignatureStream.Seek(0, SeekOrigin.Begin);
+
+            var newDataStream = new MemoryStream(baseData);
+
+            var progressReporter = Substitute.For<IProgress<ProgressReport>>();
+
+            // Act
+            var deltaStream = new MemoryStream();
+            var deltaBuilder = new DeltaBuilder();
+            await deltaBuilder.BuildDeltaAsync(newDataStream, new SignatureReader(baseSignatureStream, null), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream))).ConfigureAwait(false);
+            deltaStream.Seek(0, SeekOrigin.Begin);
+
+            var patchedDataStream = new MemoryStream();
+            var deltaApplier = new DeltaApplier();
+            await deltaApplier.ApplyAsync(baseDataStream, new BinaryDeltaReader(deltaStream, progressReporter), patchedDataStream).ConfigureAwait(false);
+
+            // Assert
+            CollectionAssert.AreEqual(baseData, patchedDataStream.ToArray());
+            progressReporter.Received().Report(Arg.Any<ProgressReport>());
+        }
+
         private static async Task<(MemoryStream baseDataStream, MemoryStream baseSignatureStream, byte[] newData, MemoryStream newDataStream)> PrepareTestDataAsync(int baseNumberOfBytes, int newDataNumberOfBytes,
             short chunkSize)
         {

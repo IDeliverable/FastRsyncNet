@@ -71,5 +71,49 @@ namespace FastRsync.Tests
 
             progressReporter.Received().Report(Arg.Any<ProgressReport>());
         }
+
+        [Test]
+        public async Task SignatureBuilderAsyncXXHash_ForEmptyStream_BuildsSignature()
+        {
+            // Arrange
+            var dataStream = new MemoryStream();
+            var signatureStream = new MemoryStream();
+
+            var progressReporter = Substitute.For<IProgress<ProgressReport>>();
+
+            // Act
+            var target = new SignatureBuilder
+            {
+                ProgressReport = progressReporter
+            };
+            await target.BuildAsync(dataStream, new SignatureWriter(signatureStream)).ConfigureAwait(false);
+
+            // Assert
+            CommonAsserts.ValidateSignature(signatureStream, new XxHashAlgorithm(), Utils.GetMd5(dataStream.ToArray()));
+
+            progressReporter.Received().Report(Arg.Any<ProgressReport>());
+        }
+
+        [Test]
+        public void SignatureBuilderSyncXXHash_ForEmptyStream_BuildsSignature()
+        {
+            // Arrange
+            var dataStream = new MemoryStream();
+            var signatureStream = new MemoryStream();
+
+            var progressReporter = Substitute.For<IProgress<ProgressReport>>();
+
+            // Act
+            var target = new SignatureBuilder
+            {
+                ProgressReport = progressReporter
+            };
+            target.Build(dataStream, new SignatureWriter(signatureStream));
+
+            // Assert
+            CommonAsserts.ValidateSignature(signatureStream, new XxHashAlgorithm(), Utils.GetMd5(dataStream.ToArray()));
+
+            progressReporter.Received().Report(Arg.Any<ProgressReport>());
+        }
     }
 }
