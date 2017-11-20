@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FastRsync.Tests\FastRsync.Tests.csproj" />
     <ProjectReference Include="..\FastRsync\FastRsync.csproj" />
   </ItemGroup>
 

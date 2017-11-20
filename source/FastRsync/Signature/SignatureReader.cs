@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Text;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
 using Newtonsoft.Json;
@@ -51,10 +50,8 @@ namespace FastRsync.Signature
             if (version != FastRsyncBinaryFormat.Version)
                 throw new InvalidDataException("The signature file uses a newer file format than this program can handle.");
 
-            var metadataLength = reader.ReadUInt16();
-
-            var metadataBytes = Encoding.ASCII.GetString(reader.ReadBytes(metadataLength));
-            var metadata = JsonConvert.DeserializeObject<SignatureMetadata>(metadataBytes, JsonSerializationSettings.JsonSettings);
+            var metadataStr = reader.ReadString();
+            var metadata = JsonConvert.DeserializeObject<SignatureMetadata>(metadataStr, JsonSerializationSettings.JsonSettings);
 
             var signature = new Signature(metadata, RsyncFormatType.FastRsync);
 

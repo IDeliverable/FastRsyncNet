@@ -22,10 +22,8 @@ namespace FastRsync.Delta
         {
             writer.Write(FastRsyncBinaryFormat.DeltaHeader);
             writer.Write(FastRsyncBinaryFormat.Version);
-            var metadataBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(metadata, JsonSerializationSettings.JsonSettings));
-            var metadataLength = (ushort)metadataBytes.Length;
-            writer.Write(metadataLength);
-            writer.Write(metadataBytes);
+            var metadataStr = JsonConvert.SerializeObject(metadata, JsonSerializationSettings.JsonSettings);
+            writer.Write(metadataStr);
         }
 
         public void WriteCopyCommand(DataRange segment)

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using FastRsync.Core;
 using FastRsync.Diagnostics;
@@ -77,10 +76,8 @@ namespace FastRsync.Delta
             if (version != FastRsyncBinaryFormat.Version)
                 throw new InvalidDataException("The delta file uses a newer file format than this program can handle.");
 
-            var metadataLength = reader.ReadUInt16();
-
-            var metadataBytes = Encoding.ASCII.GetString(reader.ReadBytes(metadataLength));
-            Metadata = JsonConvert.DeserializeObject<DeltaMetadata>(metadataBytes, JsonSerializationSettings.JsonSettings);
+            var metadataStr = reader.ReadString();
+            Metadata = JsonConvert.DeserializeObject<DeltaMetadata>(metadataStr, JsonSerializationSettings.JsonSettings);
 
             hashAlgorithm = SupportedAlgorithms.Hashing.Create(Metadata.HashAlgorithm);
             expectedHash = Convert.FromBase64String(Metadata.ExpectedFileHash);

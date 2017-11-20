@@ -3,6 +3,7 @@ using System.IO;
 using BenchmarkDotNet.Attributes;
 using FastRsync.Core;
 using FastRsync.Signature;
+using FastRsync.Tests.OctodiffLegacy;
 
 namespace FastRsync.Benchmarks
 {
@@ -22,6 +23,8 @@ namespace FastRsync.Benchmarks
             new SignatureBuilder(SupportedAlgorithms.Hashing.Sha1(), SupportedAlgorithms.Checksum.Adler32Rolling());
         private readonly SignatureBuilder md5SignatureBuilder =
             new SignatureBuilder(SupportedAlgorithms.Hashing.Md5(), SupportedAlgorithms.Checksum.Adler32Rolling());
+        private readonly OctodiffSignatureBuilder xxHashOctodiffSignatureBuilder =
+            new OctodiffSignatureBuilder(SupportedAlgorithms.Hashing.XxHash(), SupportedAlgorithms.Checksum.Adler32Rolling());
 
         private MemoryStream dataStream;
 
@@ -62,6 +65,15 @@ namespace FastRsync.Benchmarks
             dataStream.Seek(0, SeekOrigin.Begin);
             var signatureStream = new MemoryStream();
             md5SignatureBuilder.Build(dataStream, new SignatureWriter(signatureStream));
+            return signatureStream.ToArray();
+        }
+
+        [Benchmark]
+        public byte[] OctodiffSignaturexxHash()
+        {
+            dataStream.Seek(0, SeekOrigin.Begin);
+            var signatureStream = new MemoryStream();
+            xxHashOctodiffSignatureBuilder.Build(dataStream, new OctodiffSignatureWriter(signatureStream));
             return signatureStream.ToArray();
         }
     }

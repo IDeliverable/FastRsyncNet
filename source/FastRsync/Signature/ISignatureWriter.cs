@@ -29,10 +29,8 @@ namespace FastRsync.Signature
         {
             bw.Write(FastRsyncBinaryFormat.SignatureHeader);
             bw.Write(FastRsyncBinaryFormat.Version);
-            var metadataBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(metadata, JsonSerializationSettings.JsonSettings));
-            var metadataLength = (ushort)metadataBytes.Length;
-            bw.Write(metadataLength);
-            bw.Write(metadataBytes);
+            var metadataStr = JsonConvert.SerializeObject(metadata, JsonSerializationSettings.JsonSettings);
+            bw.Write(metadataStr);
         }
 
         public void WriteMetadata(SignatureMetadata metadata)
