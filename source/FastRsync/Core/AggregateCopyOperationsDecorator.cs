@@ -1,7 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using FastRsync.Delta;
-using FastRsync.Hash;
 
 namespace FastRsync.Core
 {

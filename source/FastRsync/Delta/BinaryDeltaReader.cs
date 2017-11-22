@@ -25,7 +25,16 @@ namespace FastRsync.Delta
             this.readBufferSize = readBufferSize;
         }
 
-        public DeltaMetadata Metadata { get; private set; }
+        private DeltaMetadata _metadata;
+        public DeltaMetadata Metadata
+        {
+            get
+            {
+                ReadMetadata();
+                return _metadata;
+            }
+        }
+
         public RsyncFormatType Type { get; private set; }
 
         public byte[] ExpectedHash
@@ -48,7 +57,7 @@ namespace FastRsync.Delta
 
         private void ReadMetadata()
         {
-            if (Metadata != null)
+            if (_metadata != null)
                 return;
 
             reader.BaseStream.Seek(0, SeekOrigin.Begin);
@@ -77,10 +86,10 @@ namespace FastRsync.Delta
                 throw new InvalidDataException("The delta file uses a newer file format than this program can handle.");
 
             var metadataStr = reader.ReadString();
-            Metadata = JsonConvert.DeserializeObject<DeltaMetadata>(metadataStr, JsonSerializationSettings.JsonSettings);
+            _metadata = JsonConvert.DeserializeObject<DeltaMetadata>(metadataStr, JsonSerializationSettings.JsonSettings);
 
-            hashAlgorithm = SupportedAlgorithms.Hashing.Create(Metadata.HashAlgorithm);
-            expectedHash = Convert.FromBase64String(Metadata.ExpectedFileHash);
+            hashAlgorithm = SupportedAlgorithms.Hashing.Create(_metadata.HashAlgorithm);
+            expectedHash = Convert.FromBase64String(_metadata.ExpectedFileHash);
 
             Type = RsyncFormatType.FastRsync;
         }
@@ -100,7 +109,7 @@ namespace FastRsync.Delta
             if (!StructuralComparisons.StructuralEqualityComparer.Equals(OctoBinaryFormat.EndOfMetadata, endOfMeta))
                 throw new InvalidDataException("The delta file appears to be corrupt.");
 
-            Metadata = new DeltaMetadata
+            _metadata = new DeltaMetadata
             {
                 HashAlgorithm = hashAlgorithmName,
                 ExpectedFileHashAlgorithm = hashAlgorithmName,
