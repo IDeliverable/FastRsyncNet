@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using FastRsync.Hash;
+using FastRsync.Signature;
 
 namespace FastRsync.Delta
 {
@@ -8,6 +9,8 @@ namespace FastRsync.Delta
     {
         byte[] ExpectedHash { get; }
         IHashAlgorithm HashAlgorithm { get; }
+        DeltaMetadata Metadata { get; }
+        RsyncFormatType Type { get; }
         void Apply(
             Action<byte[]> writeData,
             Action<long, long> copy

@@ -46,59 +46,77 @@ namespace FastRsync.Signature
             }
         }
 
-        public void Build(Stream stream, ISignatureWriter signatureWriter)
+        public void Build(Stream baseDataStream, ISignatureWriter signatureWriter)
         {
-            WriteMetadata(stream, signatureWriter);
-            WriteChunkSignatures(stream, signatureWriter);
+            WriteMetadata(baseDataStream, signatureWriter);
+            WriteChunkSignatures(baseDataStream, signatureWriter);
         }
 
-        public async Task BuildAsync(Stream stream, ISignatureWriter signatureWriter)
+        public async Task BuildAsync(Stream baseDataStream, ISignatureWriter signatureWriter)
         {
-            await WriteMetadataAsync(stream, signatureWriter).ConfigureAwait(false);
-            await WriteChunkSignaturesAsync(stream, signatureWriter).ConfigureAwait(false);
+            await WriteMetadataAsync(baseDataStream, signatureWriter).ConfigureAwait(false);
+            await WriteChunkSignaturesAsync(baseDataStream, signatureWriter).ConfigureAwait(false);
         }
 
-        private void WriteMetadata(Stream stream, ISignatureWriter signatureWriter)
-        {
-            ProgressReport?.Report(new ProgressReport
-            {
-                Operation = ProgressOperationType.HashingFile,
-                CurrentPosition = 0,
-                Total = stream.Length
-            });
-
-            stream.Seek(0, SeekOrigin.Begin);
-            signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm);
-
-            ProgressReport?.Report(new ProgressReport
-            {
-                Operation = ProgressOperationType.HashingFile,
-                CurrentPosition = stream.Length,
-                Total = stream.Length
-            });
-        }
-
-        private async Task WriteMetadataAsync(Stream stream, ISignatureWriter signatureWriter)
+        private void WriteMetadata(Stream baseFileStream, ISignatureWriter signatureWriter)
         {
             ProgressReport?.Report(new ProgressReport
             {
                 Operation = ProgressOperationType.HashingFile,
                 CurrentPosition = 0,
-                Total = stream.Length
+                Total = baseFileStream.Length
             });
 
-            stream.Seek(0, SeekOrigin.Begin);
-            await signatureWriter.WriteMetadataAsync(HashAlgorithm, RollingChecksumAlgorithm).ConfigureAwait(false);
+            baseFileStream.Seek(0, SeekOrigin.Begin);
+            var baseFileVerificationHashAlgorithm = SupportedAlgorithms.Hashing.Md5();
+            var baseFileHash = baseFileVerificationHashAlgorithm.ComputeHash(baseFileStream);
+
+            signatureWriter.WriteMetadata(new SignatureMetadata
+            {
+                ChunkHashAlgorithm = HashAlgorithm.Name,
+                RollingChecksumAlgorithm = RollingChecksumAlgorithm.Name,
+                BaseFileHashAlgorithm = baseFileVerificationHashAlgorithm.Name,
+                BaseFileHash = Convert.ToBase64String(baseFileHash)
+            });
 
             ProgressReport?.Report(new ProgressReport
             {
                 Operation = ProgressOperationType.HashingFile,
-                CurrentPosition = stream.Length,
-                Total = stream.Length
+                CurrentPosition = baseFileStream.Length,
+                Total = baseFileStream.Length
             });
         }
 
-        private void WriteChunkSignatures(Stream stream, ISignatureWriter signatureWriter)
+        private async Task WriteMetadataAsync(Stream baseFileStream, ISignatureWriter signatureWriter)
+        {
+            ProgressReport?.Report(new ProgressReport
+            {
+                Operation = ProgressOperationType.HashingFile,
+                CurrentPosition = 0,
+                Total = baseFileStream.Length
+            });
+
+            baseFileStream.Seek(0, SeekOrigin.Begin);
+            var baseFileVerificationHashAlgorithm = SupportedAlgorithms.Hashing.Md5();
+            var baseFileHash = await baseFileVerificationHashAlgorithm.ComputeHashAsync(baseFileStream).ConfigureAwait(false);
+
+            await signatureWriter.WriteMetadataAsync(new SignatureMetadata
+            {
+                ChunkHashAlgorithm = HashAlgorithm.Name,
+                RollingChecksumAlgorithm = RollingChecksumAlgorithm.Name,
+                BaseFileHashAlgorithm = baseFileVerificationHashAlgorithm.Name,
+                BaseFileHash = Convert.ToBase64String(baseFileHash)
+            }).ConfigureAwait(false);
+
+            ProgressReport?.Report(new ProgressReport
+            {
+                Operation = ProgressOperationType.HashingFile,
+                CurrentPosition = baseFileStream.Length,
+                Total = baseFileStream.Length
+            });
+        }
+
+        private void WriteChunkSignatures(Stream baseFileStream, ISignatureWriter signatureWriter)
         {
             var checksumAlgorithm = RollingChecksumAlgorithm;
             var hashAlgorithm = HashAlgorithm;
@@ -107,14 +125,14 @@ namespace FastRsync.Signature
             {
                 Operation = ProgressOperationType.BuildingSignatures,
                 CurrentPosition = 0,
-                Total = stream.Length
+                Total = baseFileStream.Length
             });
-            stream.Seek(0, SeekOrigin.Begin);
+            baseFileStream.Seek(0, SeekOrigin.Begin);
 
             long start = 0;
             int read;
             var block = new byte[ChunkSize];
-            while ((read = stream.Read(block, 0, block.Length)) > 0)
+            while ((read = baseFileStream.Read(block, 0, block.Length)) > 0)
             {
                 signatureWriter.WriteChunk(new ChunkSignature
                 {
@@ -129,12 +147,12 @@ namespace FastRsync.Signature
                 {
                     Operation = ProgressOperationType.BuildingSignatures,
                     CurrentPosition = start,
-                    Total = stream.Length
+                    Total = baseFileStream.Length
                 });
             }
         }
 
-        private async Task WriteChunkSignaturesAsync(Stream stream, ISignatureWriter signatureWriter)
+        private async Task WriteChunkSignaturesAsync(Stream baseFileStream, ISignatureWriter signatureWriter)
         {
             var checksumAlgorithm = RollingChecksumAlgorithm;
             var hashAlgorithm = HashAlgorithm;
@@ -143,14 +161,14 @@ namespace FastRsync.Signature
             {
                 Operation = ProgressOperationType.BuildingSignatures,
                 CurrentPosition = 0,
-                Total = stream.Length
+                Total = baseFileStream.Length
             });
-            stream.Seek(0, SeekOrigin.Begin);
+            baseFileStream.Seek(0, SeekOrigin.Begin);
 
             long start = 0;
             int read;
             var block = new byte[ChunkSize];
-            while ((read = await stream.ReadAsync(block, 0, block.Length).ConfigureAwait(false)) > 0)
+            while ((read = await baseFileStream.ReadAsync(block, 0, block.Length).ConfigureAwait(false)) > 0)
             {
                 await signatureWriter.WriteChunkAsync(new ChunkSignature
                 {
@@ -165,7 +183,7 @@ namespace FastRsync.Signature
                 {
                     Operation = ProgressOperationType.BuildingSignatures,
                     CurrentPosition = start,
-                    Total = stream.Length
+                    Total = baseFileStream.Length
                 });
             }
         }

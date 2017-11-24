@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net471</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FastRsync.Tests\FastRsync.Tests.csproj" />
+    <ProjectReference Include="..\FastRsync\FastRsync.csproj" />
+  </ItemGroup>
+
+</Project>

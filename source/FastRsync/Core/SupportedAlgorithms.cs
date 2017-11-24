@@ -13,6 +13,11 @@ namespace FastRsync.Core
                 return new HashAlgorithmWrapper("SHA1", SHA1.Create());
             }
 
+            public static IHashAlgorithm Md5()
+            {
+                return new HashAlgorithmWrapper("MD5", MD5.Create());
+            }
+
             public static IHashAlgorithm XxHash()
             {
                 return new XxHashAlgorithm();
@@ -25,11 +30,15 @@ namespace FastRsync.Core
 
             public static IHashAlgorithm Create(string algorithm)
             {
-                if (algorithm == "XXH64")
-                    return XxHash();
-
-                if (algorithm == "SHA1")
-                    return Sha1();
+                switch (algorithm)
+                {
+                    case "XXH64":
+                        return XxHash();
+                    case "MD5":
+                        return Md5();
+                    case "SHA1":
+                        return Sha1();
+                }
 
                 throw new NotSupportedException($"The hash algorithm '{algorithm}' is not supported");
             }

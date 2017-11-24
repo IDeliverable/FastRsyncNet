@@ -1,8 +1,9 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using FastRsync.Core;
-using FastRsync.Hash;
+using Newtonsoft.Json;
 
 namespace FastRsync.Delta
 {
@@ -17,14 +18,12 @@ namespace FastRsync.Delta
             this.readWriteBufferSize = readWriteBufferSize;
         }
 
-        public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] expectedNewFileHash)
+        public void WriteMetadata(DeltaMetadata metadata)
         {
-            writer.Write(BinaryFormat.DeltaHeader);
-            writer.Write(BinaryFormat.Version);
-            writer.Write(hashAlgorithm.Name);
-            writer.Write(expectedNewFileHash.Length);
-            writer.Write(expectedNewFileHash);
-            writer.Write(BinaryFormat.EndOfMetadata);
+            writer.Write(FastRsyncBinaryFormat.DeltaHeader);
+            writer.Write(FastRsyncBinaryFormat.Version);
+            var metadataStr = JsonConvert.SerializeObject(metadata, JsonSerializationSettings.JsonSettings);
+            writer.Write(metadataStr);
         }
 
         public void WriteCopyCommand(DataRange segment)

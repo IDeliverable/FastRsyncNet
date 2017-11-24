@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
+using FastRsync.Core;
 
 namespace FastRsync.Delta
 {
@@ -70,7 +71,7 @@ namespace FastRsync.Delta
                 if (!await HashCheckAsync(delta, outputStream).ConfigureAwait(false))
                 {
                     throw new InvalidDataException(
-                        $"Verification of the patched file failed. The {delta.HashAlgorithm.Name} hash of the patch result file, and the file that was used as input for the delta, do not match. This can happen if the basis file changed since the signatures were calculated.");
+                        $"Verification of the patched file failed. The {delta.Metadata.ExpectedFileHashAlgorithm} hash of the patch result file, and the file that was used as input for the delta, do not match. This can happen if the basis file changed since the signatures were calculated.");
                 }
             }
         }
@@ -80,7 +81,7 @@ namespace FastRsync.Delta
             outputStream.Seek(0, SeekOrigin.Begin);
 
             var sourceFileHash = delta.ExpectedHash;
-            var algorithm = delta.HashAlgorithm;
+            var algorithm = SupportedAlgorithms.Hashing.Create(delta.Metadata.ExpectedFileHashAlgorithm);
 
             var actualHash = algorithm.ComputeHash(outputStream);
 
@@ -92,7 +93,7 @@ namespace FastRsync.Delta
             outputStream.Seek(0, SeekOrigin.Begin);
 
             var sourceFileHash = delta.ExpectedHash;
-            var algorithm = delta.HashAlgorithm;
+            var algorithm = SupportedAlgorithms.Hashing.Create(delta.Metadata.ExpectedFileHashAlgorithm);
 
             var actualHash = await algorithm.ComputeHashAsync(outputStream).ConfigureAwait(false);
 
