@@ -5,7 +5,9 @@ The Fast Rsync .NET library is Rsync implementation derived from [Octodiff](http
 Unlike the Octodiff which is based on SHA1 algorithm, the FastRsyncNet uses xxHash64 as a default algorithm.
 Usage of xxHash64 allows for significant faster calculations and smaller signature size.
 
-FastRsyncNet 1.x.x supports also SHA1 and is 100% compatible with Octodiff.
+FastRsyncNet supports also SHA1 and is 100% compatible with signatures and deltas produced by Octodiff.
+
+Since version 2.0.0 the signature and delta format has changed. FastRsyncNet 2.x is still able to work with signatures and deltas from FastRsync 1.x and Octodiff. However, files made with FastRsyncNet 2.x are not going to be recognized by FastRsyncNet 1.x.
 
 ## Install [![NuGet](https://img.shields.io/nuget/v/FastRsyncNet.svg?style=flat)](https://www.nuget.org/packages/FastRsyncNet/)
 Add To project via NuGet:  
