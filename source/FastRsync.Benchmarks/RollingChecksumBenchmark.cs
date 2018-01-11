@@ -15,6 +15,7 @@ namespace FastRsync.Benchmarks
         private byte[] data;
 
         private readonly IRollingChecksum adler32RollingAlgorithm = SupportedAlgorithms.Checksum.Adler32Rolling();
+        private readonly IRollingChecksum adler32RollingV2Algorithm = SupportedAlgorithms.Checksum.Adler32RollingV2();
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -27,6 +28,12 @@ namespace FastRsync.Benchmarks
         public uint Adler32RollingCalculateChecksum()
         {
             return adler32RollingAlgorithm.Calculate(data, 0, data.Length);
+        }
+
+        [Benchmark]
+        public uint Adler32RollingV2CalculateChecksum()
+        {
+            return adler32RollingV2Algorithm.Calculate(data, 0, data.Length);
         }
     }
 }

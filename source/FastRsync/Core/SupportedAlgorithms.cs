@@ -47,6 +47,7 @@ namespace FastRsync.Core
         public static class Checksum
         {
             public static IRollingChecksum Adler32Rolling() { return new Adler32RollingChecksum();  }
+            public static IRollingChecksum Adler32RollingV2() { return new Adler32RollingChecksumV2(); }
 
             public static IRollingChecksum Default()
             {
@@ -57,6 +58,8 @@ namespace FastRsync.Core
             {
                 if (algorithm == "Adler32")
                     return Adler32Rolling();
+                if (algorithm == "Adler32V2")
+                    return Adler32RollingV2();
                 throw new NotSupportedException($"The rolling checksum algorithm '{algorithm}' is not supported");
             }
         }
