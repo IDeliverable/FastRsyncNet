@@ -1,19 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Octodiff", "Octodiff\Octodiff.csproj", "{BBA7CDC2-DE25-4131-89F2-506712178FC8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Octodiff.Tests", "Octodiff.Tests\Octodiff.Tests.csproj", "{B7E95BD1-676E-4AC7-9089-3270392776BA}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastRsync", "FastRsync\FastRsync.csproj", "{7B6474F5-8EE1-4D09-A48A-5A295E2DF8E2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastRsync.Tests", "FastRsync.Tests\FastRsync.Tests.csproj", "{CF4B2B1E-71C3-4C8F-92C1-60B2D617A186}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OctodiffAsync", "OctodiffAsync\OctodiffAsync.csproj", "{77157EEA-0EDE-4DDA-A611-D57A8F013CD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastRsync.Benchmarks", "FastRsync.Benchmarks\FastRsync.Benchmarks.csproj", "{040122B6-214A-470A-BEB0-A2779E7EE3EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastRsync.Benchmarks", "FastRsync.Benchmarks\FastRsync.Benchmarks.csproj", "{040122B6-214A-470A-BEB0-A2779E7EE3EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastRsync", "FastRsync\FastRsync.csproj", "{FC540D54-A31D-471D-BE32-C28A384341FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,30 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BBA7CDC2-DE25-4131-89F2-506712178FC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BBA7CDC2-DE25-4131-89F2-506712178FC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BBA7CDC2-DE25-4131-89F2-506712178FC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BBA7CDC2-DE25-4131-89F2-506712178FC8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B6474F5-8EE1-4D09-A48A-5A295E2DF8E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B6474F5-8EE1-4D09-A48A-5A295E2DF8E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B6474F5-8EE1-4D09-A48A-5A295E2DF8E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B6474F5-8EE1-4D09-A48A-5A295E2DF8E2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CF4B2B1E-71C3-4C8F-92C1-60B2D617A186}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CF4B2B1E-71C3-4C8F-92C1-60B2D617A186}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF4B2B1E-71C3-4C8F-92C1-60B2D617A186}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF4B2B1E-71C3-4C8F-92C1-60B2D617A186}.Release|Any CPU.Build.0 = Release|Any CPU
-		{77157EEA-0EDE-4DDA-A611-D57A8F013CD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{77157EEA-0EDE-4DDA-A611-D57A8F013CD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{77157EEA-0EDE-4DDA-A611-D57A8F013CD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{77157EEA-0EDE-4DDA-A611-D57A8F013CD2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{040122B6-214A-470A-BEB0-A2779E7EE3EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{040122B6-214A-470A-BEB0-A2779E7EE3EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{040122B6-214A-470A-BEB0-A2779E7EE3EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{040122B6-214A-470A-BEB0-A2779E7EE3EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC540D54-A31D-471D-BE32-C28A384341FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC540D54-A31D-471D-BE32-C28A384341FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC540D54-A31D-471D-BE32-C28A384341FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC540D54-A31D-471D-BE32-C28A384341FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

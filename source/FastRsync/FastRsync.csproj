@@ -1,48 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net45</TargetFramework>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <PackageId>FastRsyncNet</PackageId>
-    <Authors>Grzegorz Blok</Authors>
-    <PackageLicenseUrl>https://github.com/GrzegorzBlok/FastRsyncNet/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/GrzegorzBlok/FastRsyncNet</PackageProjectUrl>
-    <PackageTags>sync rsync synchronization</PackageTags>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>IDeliverable.FastRsync</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Fork of https://github.com/GrzegorzBlok/FastRsyncNet but repackaged as a .NET Standard 2.0 library.</Description>
+    <Copyright>Copyright 2018 IDeliverable, Ltd.</Copyright>
+    <PackageProjectUrl />
+    <RepositoryUrl>https://github.com/IDeliverable/FastRsyncNet</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <Company>IDeliverable, Ltd.</Company>
+    <Authors>IDeliverable, Ltd.</Authors>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.Data.HashFunction.Core" Version="1.8.2.2" />
-    <PackageReference Include="System.Data.HashFunction.Interfaces" Version="1.0.0.2" />
-    <PackageReference Include="System.Data.HashFunction.xxHash" Version="1.8.2.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
+
 </Project>
