@@ -18,10 +18,12 @@ namespace FastRsync.Signature
 
     public class SignatureWriter : ISignatureWriter
     {
+        private readonly Stream _signatureStream;
         private readonly BinaryWriter signaturebw;
 
         public SignatureWriter(Stream signatureStream)
         {
+            this._signatureStream = signatureStream;
             this.signaturebw = new BinaryWriter(signatureStream);
         }
 
@@ -44,7 +46,7 @@ namespace FastRsync.Signature
             var msbw = new BinaryWriter(ms);
             WriteMetadataInternal(msbw, metadata);
             ms.Seek(0, SeekOrigin.Begin);
-            await ms.CopyToAsync(signaturebw.BaseStream).ConfigureAwait(false);
+            await ms.CopyToAsync(_signatureStream).ConfigureAwait(false);
         }
 
         public void WriteChunk(ChunkSignature signature)
@@ -58,7 +60,7 @@ namespace FastRsync.Signature
         {
             signaturebw.Write(signature.Length);
             signaturebw.Write(signature.RollingChecksum);
-            await signaturebw.BaseStream.WriteAsync(signature.Hash, 0, signature.Hash.Length).ConfigureAwait(false);
+            await _signatureStream.WriteAsync(signature.Hash, 0, signature.Hash.Length).ConfigureAwait(false);
         }
     }
 }
