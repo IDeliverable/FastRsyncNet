@@ -11,6 +11,8 @@
     <RepositoryType>Git</RepositoryType>
     <Company>IDeliverable, Ltd.</Company>
     <Authors>IDeliverable, Ltd.</Authors>
+    <Version>1.0.1</Version>
+    <PackageReleaseNotes>1.0.1: Fixed a scalability issue with SignatureWriter.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
